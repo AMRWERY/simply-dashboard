@@ -5,7 +5,13 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@pinia/nuxt", "@vee-validate/nuxt", "@nuxtjs/i18n", "@vueuse/nuxt"],
+  modules: [
+    "@pinia/nuxt",
+    "@vee-validate/nuxt",
+    "@nuxtjs/i18n",
+    "@vueuse/nuxt",
+    "@nuxtjs/supabase",
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -33,6 +39,13 @@ export default defineNuxtConfig({
       cookieKey: "i18n_redirected",
       fallbackLocale: "ar",
       redirectOn: "root",
+    },
+  },
+  supabase: {
+    redirectOptions: {
+      login: "/auth",
+      callback: "/",
+      exclude: ["/auth/*", "/"],
     },
   },
   css: ["~/assets/css/main.css"],
