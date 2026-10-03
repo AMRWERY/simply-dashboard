@@ -128,7 +128,7 @@
           </div>
           <div class="min-w-0 flex-1 text-start">
             <p
-              class="truncate text-xs font-extrabold text-gray-900 dark:text-white leading-tight"
+              class="truncate text-xs font-extrabold text-gray-900 capitalize dark:text-white leading-tight"
             >
               {{ userName }}
             </p>
@@ -215,6 +215,7 @@ const handleLogout = async () => {
 .backdrop-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .backdrop-enter-from,
 .backdrop-leave-to {
   opacity: 0;
