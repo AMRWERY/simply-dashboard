@@ -47,7 +47,8 @@
     <LazyVDeleteDialog
       :is-open="isDeleteDialogOpen"
       :item-name="customerToDelete?.name"
-      @close="isDeleteDialogOpen = false"
+      :is-loading="isDeleting"
+      @close="closeDeleteDialog"
       @confirm="confirmDeleteCustomer"
     />
   </div>
@@ -173,6 +174,13 @@ const resetFilters = () => {
 // Delete Dialog State & Handlers
 const isDeleteDialogOpen = ref(false);
 const customerToDelete = ref<Customer | null>(null);
+const isDeleting = ref(false);
+
+// Ignore dismiss attempts while a delete is in flight so the dialog and
+// its target can't change under the pending request.
+const closeDeleteDialog = () => {
+  if (!isDeleting.value) isDeleteDialogOpen.value = false;
+};
 
 const promptDeleteCustomer = (id: string) => {
   const target = customers.value.find((c) => c.id === id);
@@ -184,7 +192,8 @@ const promptDeleteCustomer = (id: string) => {
 
 const confirmDeleteCustomer = async () => {
   const target = customerToDelete.value;
-  if (!target) return;
+  if (!target || isDeleting.value) return;
+  isDeleting.value = true;
   try {
     await customerStore.remove(target.id);
     addToast({
@@ -197,6 +206,7 @@ const confirmDeleteCustomer = async () => {
       message: "Could not delete the customer, try again",
     });
   } finally {
+    isDeleting.value = false;
     isDeleteDialogOpen.value = false;
     customerToDelete.value = null;
   }

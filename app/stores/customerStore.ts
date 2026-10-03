@@ -58,5 +58,10 @@ export const useCustomerStore = defineStore("customers", () => {
     items.value = items.value.filter((c) => c.id !== id);
   }
 
-  return { items, fetchAll, create, update, remove };
+  /** Drop cached rows, e.g. on logout so the next user never sees them. */
+  function reset() {
+    items.value = [];
+  }
+
+  return { items, fetchAll, create, update, remove, reset };
 });
