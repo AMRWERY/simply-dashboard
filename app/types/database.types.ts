@@ -11,6 +11,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      customers: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          phone: string;
+          email: string | null;
+          city: string | null;
+          status: "active" | "new" | "follow-up";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id?: string;
+          name: string;
+          phone: string;
+          email?: string | null;
+          city?: string | null;
+          status?: "active" | "new" | "follow-up";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          name?: string;
+          phone?: string;
+          email?: string | null;
+          city?: string | null;
+          status?: "active" | "new" | "follow-up";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
