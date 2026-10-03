@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     defaultLocale: "ar",
     strategy: "prefix",
     lazy: true,
+    // The cookie is seeded with "ar" by plugins/i18n-default-locale.ts so the
+    // browser's language never overrides the Arabic default; the toggle's
+    // choice is stored in the same cookie and used when opening "/".
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: "i18n_redirected",

@@ -5,7 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     try {
       const storedLocale = useLocalStorage<SupportedLocales>(
         "locale",
-        "en",
+        "ar",
       ).value;
 
       // Only use valid locales
