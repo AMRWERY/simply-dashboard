@@ -11,17 +11,11 @@
       >
         <!-- Modal Header -->
         <div
-          class="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800"
+          class="flex items-center justify-center border-b border-gray-100 pb-3 dark:border-gray-800"
         >
           <h2 class="text-base font-extrabold sm:text-lg">
             {{ editingCustomer ? "Update Customer" : "Add New Customer" }}
           </h2>
-          <LazyVButton
-            variant="ghost"
-            size="icon"
-            icon="close-icon"
-            @click="emit('close')"
-          />
         </div>
 
         <!-- Form using VInput and VSelectInput (1 input per row, compact height) -->
