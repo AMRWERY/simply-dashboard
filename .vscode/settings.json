@@ -2,5 +2,6 @@
     "i18n-ally.localesPaths": [
         "app/config/i18n",
         "app/config/i18n/locales"
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }
