@@ -8,7 +8,22 @@ const AVATAR_TYPES: Record<string, string> = {
   "image/png": "png",
   "image/webp": "webp",
 };
+const AVATAR_EXT_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
+// Some browsers report an empty file.type (e.g. .webp on Windows): fall back to the extension.
+function resolveAvatarType(file: File): string {
+  return (
+    file.type ||
+    AVATAR_EXT_TYPES[file.name.split(".").pop()?.toLowerCase() ?? ""] ||
+    ""
+  );
+}
 
 export const useAuthStore = defineStore("auth", () => {
   const supabase = useSupabaseClient<Database>();
@@ -80,12 +95,13 @@ export const useAuthStore = defineStore("auth", () => {
       avatarUrl.value = null;
       return;
     }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("avatar_url")
       .eq("id", id)
       .maybeSingle();
-    avatarUrl.value = data?.avatar_url ?? null;
+    // On a failed fetch keep what we have rather than wiping the avatar.
+    if (!error) avatarUrl.value = data?.avatar_url ?? null;
   }
 
   /** Throws Error("invalid-type" | "too-large") for client-side rejections. */
@@ -93,7 +109,8 @@ export const useAuthStore = defineStore("auth", () => {
     const id = supabaseUser.value?.sub;
     if (!id) throw new Error("not-authenticated");
 
-    const ext = AVATAR_TYPES[file.type];
+    const contentType = resolveAvatarType(file);
+    const ext = AVATAR_TYPES[contentType];
     if (!ext) throw new Error("invalid-type");
     if (file.size > AVATAR_MAX_BYTES) throw new Error("too-large");
 
@@ -101,24 +118,34 @@ export const useAuthStore = defineStore("auth", () => {
     const path = `${id}/avatar-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await bucket.upload(path, file, {
-      contentType: file.type,
+      contentType,
       cacheControl: "31536000",
     });
     if (uploadError) throw uploadError;
 
     const { data } = bucket.getPublicUrl(path);
-    const previous = avatarUrl.value;
+    // Read the previous file from the database, not client state, so the
+    // right file is deleted even if state is stale or another tab changed it.
+    const { data: current } = await supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", id)
+      .maybeSingle();
+    const previous = current?.avatar_url ?? null;
 
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("profiles")
       .update({
         avatar_url: data.publicUrl,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", id);
-    if (updateError) {
+      .eq("id", id)
+      .select("id");
+    // An update that matches no row (missing profile / RLS) returns no error,
+    // so treat 0 rows as a failure too.
+    if (updateError || !updated?.length) {
       await bucket.remove([path]); // don't leave an orphan file
-      throw updateError;
+      throw updateError ?? new Error("profile-not-updated");
     }
 
     avatarUrl.value = data.publicUrl;
