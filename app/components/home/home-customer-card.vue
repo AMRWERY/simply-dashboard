@@ -19,6 +19,7 @@
               {{ customer.name }}
             </h2>
             <p
+              v-if="customer.city"
               class="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
             >
               <LazyVIcon
@@ -63,6 +64,7 @@
           }}</span>
         </p>
         <p
+          v-if="customer.email"
           class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
         >
           <LazyVIcon
@@ -115,6 +117,6 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "edit", customer: Customer): void;
-  (e: "delete", id: number): void;
+  (e: "delete", id: string): void;
 }>();
 </script>

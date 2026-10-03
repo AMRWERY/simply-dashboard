@@ -85,6 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (error) throw error;
     supabaseUser.value = null;
     avatarUrl.value = null;
+    useCustomerStore().reset();
     remember.value = null;
     sessionAlive.value = null;
   }

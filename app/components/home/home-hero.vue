@@ -37,26 +37,8 @@
     </div>
 
     <div class="relative flex flex-wrap items-center gap-3">
-      <!-- Live status beacon -->
-      <div
-        class="flex items-center gap-2 rounded-full bg-indigo-100 px-3.5 py-1.5 text-xs font-bold text-indigo-900 backdrop-blur-md dark:bg-white/10 dark:text-white"
-      >
-        <span class="relative flex h-2 w-2">
-          <span
-            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"
-          />
-          <span
-            class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"
-          />
-        </span>
-        5 Active Now
-      </div>
-
       <!-- Add Customer button -->
-      <LazyVButton
-        icon="plus-icon"
-        @click="emit('add')"
-      >
+      <LazyVButton icon="plus-icon" @click="emit('add')">
         Add Customer
       </LazyVButton>
     </div>
