@@ -77,7 +77,8 @@ const isLoading = ref(true);
 onMounted(async () => {
   try {
     await customerStore.fetchAll();
-  } catch {
+  } catch (e) {
+    console.error("[customers] load failed", e);
     addToast({ type: "error", message: "Could not load customers, try again" });
   } finally {
     isLoading.value = false;
@@ -201,7 +202,8 @@ const confirmDeleteCustomer = async () => {
       type: "success",
       message: `Customer "${target.name}" deleted successfully`,
     });
-  } catch {
+  } catch (e) {
+    console.error("[customers] delete failed", e);
     addToast({
       type: "error",
       message: "Could not delete the customer, try again",
@@ -245,8 +247,9 @@ const handleSaveCustomer = async (data: CustomerInput) => {
       addToast({ type: "success", message: "Customer added successfully" });
     }
     closeModal();
-  } catch {
+  } catch (e) {
     // Keep the modal open so the user's input isn't lost.
+    console.error("[customers] save failed", e);
     addToast({
       type: "error",
       message: "Could not save the customer, try again",
