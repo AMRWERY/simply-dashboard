@@ -20,4 +20,11 @@
 
 <script lang="ts" setup>
 const isMobileMenuOpen = ref(false);
+
+// Load the avatar before first render (SSR) so it doesn't flash initials.
+const auth = useAuthStore();
+await useAsyncData("profile", async () => {
+  await auth.fetchProfile();
+  return true;
+});
 </script>

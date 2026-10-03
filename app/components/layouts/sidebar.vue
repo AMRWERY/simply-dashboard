@@ -121,14 +121,64 @@
         <div
           class="flex items-center gap-3 rounded-2xl bg-gray-50/80 p-3 dark:bg-gray-800/40"
         >
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-xs font-extrabold text-white shadow-md shadow-indigo-600/20"
+          <button
+            type="button"
+            class="group relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-xs font-extrabold text-white shadow-md shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500"
+            :disabled="isUploadingAvatar"
+            aria-label="Change profile picture"
+            @click="avatarInput?.click()"
           >
-            {{ userInitials }}
-          </div>
+            <img
+              v-if="auth.avatarUrl"
+              :src="auth.avatarUrl"
+              alt=""
+              class="h-full w-full object-cover"
+            />
+            <span v-else>{{ userInitials }}</span>
+            <span
+              class="absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity"
+              :class="
+                isUploadingAvatar
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+              "
+            >
+              <svg
+                v-if="isUploadingAvatar"
+                class="h-4 w-4 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              >
+                <path d="M12 3a9 9 0 1 0 9 9" />
+              </svg>
+              <svg
+                v-else
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+            </span>
+          </button>
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="hidden"
+            @change="onAvatarSelected"
+          />
           <div class="min-w-0 flex-1 text-start">
             <p
-              class="truncate text-xs font-extrabold text-gray-900 capitalize dark:text-white leading-tight"
+              class="truncate text-xs font-extrabold text-gray-900 dark:text-white leading-tight"
             >
               {{ userName }}
             </p>
@@ -198,6 +248,31 @@ const isCustomersActive = computed(() => {
 const isReportsActive = computed(() => {
   return route.path.includes("reports");
 });
+
+const avatarInput = ref<HTMLInputElement | null>(null);
+const isUploadingAvatar = ref(false);
+
+const onAvatarSelected = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = ""; // lets the same file be picked again
+  if (!file) return;
+
+  isUploadingAvatar.value = true;
+  try {
+    await auth.uploadAvatar(file);
+  } catch (e) {
+    const message =
+      e instanceof Error && e.message === "invalid-type"
+        ? "Please choose a JPG, PNG or WebP image"
+        : e instanceof Error && e.message === "too-large"
+          ? "Image must be 2 MB or smaller"
+          : "Could not upload the image, try again";
+    useToast().add({ type: "error", message });
+  } finally {
+    isUploadingAvatar.value = false;
+  }
+};
 
 const handleLogout = async () => {
   try {
