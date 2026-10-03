@@ -11,14 +11,14 @@ export const useAuthStore = defineStore("auth", () => {
     default: () => null,
     maxAge: ONE_YEAR,
     sameSite: "lax",
-    secure: true,
+    secure: !import.meta.dev,
   });
 
   // Session cookie (no maxAge): disappears when the browser closes.
   const sessionAlive = useCookie<"1" | null>("session_alive", {
     default: () => null,
     sameSite: "lax",
-    secure: true,
+    secure: !import.meta.dev,
   });
 
   const user = computed<AuthUser | null>(() => {
@@ -48,11 +48,16 @@ export const useAuthStore = defineStore("auth", () => {
     // Set the user now so route middleware sees it before the async
     // onAuthStateChange refresh in @nuxtjs/supabase lands.
     const { data } = await supabase.auth.getClaims();
-    supabaseUser.value = data?.claims ?? null;
+    if (!data?.claims) throw new Error("Could not read session after sign-in");
+    supabaseUser.value = data.claims;
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    // "local": end only this browser's session, not the user's other devices.
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+    // Keep the remember cookies if sign-out failed, so a non-remembered
+    // session is not silently promoted to a remembered one.
+    if (error) throw error;
     supabaseUser.value = null;
     remember.value = null;
     sessionAlive.value = null;

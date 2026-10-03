@@ -200,7 +200,12 @@ const isReportsActive = computed(() => {
 });
 
 const handleLogout = async () => {
-  await auth.logout();
+  try {
+    await auth.logout();
+  } catch {
+    useToast().add({ type: "error", message: "Could not sign out, try again" });
+    return;
+  }
   await navigateTo(localePath("/auth"));
 };
 </script>

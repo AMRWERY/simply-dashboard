@@ -11,7 +11,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (!auth.isAuthenticated) return;
     if (auth.remember !== "0" || auth.sessionAlive) return;
 
-    await auth.logout();
+    try {
+      await auth.logout();
+    } catch {
+      // Sign-out failed (e.g. offline): stay as-is; the guard retries next load.
+      return;
+    }
     await navigateTo(useLocalePath()("/auth"), { replace: true });
   });
 });

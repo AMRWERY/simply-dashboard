@@ -46,7 +46,7 @@ export default defineNuxtConfig({
     cookieOptions: {
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
-      secure: true,
+      secure: !import.meta.dev,
     },
   },
   css: ["~/assets/css/main.css"],
