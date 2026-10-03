@@ -42,6 +42,11 @@ export default defineNuxtConfig({
     },
   },
   supabase: {
+    // Public values (the browser needs them; data is protected by RLS).
+    // Env vars win when set, e.g. SUPABASE_URL / SUPABASE_KEY on the host.
+    // NEVER put the secret/service-role key here.
+    url: process.env.SUPABASE_URL || "https://udywdtvvwuoelvrjsozs.supabase.co",
+    key: process.env.SUPABASE_KEY || "sb_publishable_t8KFc2r_xdCEMBrN0OxJoQ_xgskcikO",
     redirect: false,
     cookieOptions: {
       maxAge: 60 * 60 * 24 * 365,
