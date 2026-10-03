@@ -26,7 +26,6 @@
             label="Customer Name"
             placeholder="e.g. Sultan Al-Ghamdi"
             compact
-            required
           />
 
           <!-- Email -->
@@ -37,7 +36,6 @@
             placeholder="example@example.com"
             dir="ltr"
             compact
-            required
           />
 
           <!-- Phone -->
@@ -48,7 +46,6 @@
             placeholder="+20 102 000 0000"
             dir="ltr"
             compact
-            required
           />
 
           <!-- City -->
@@ -57,7 +54,6 @@
             label="City"
             placeholder="Cairo, Alexandria, etc."
             compact
-            required
           />
 
           <!-- Status -->
@@ -77,6 +73,7 @@
             >
               Cancel
             </LazyVButton>
+            
             <LazyVButton
               type="submit"
               variant="primary"
