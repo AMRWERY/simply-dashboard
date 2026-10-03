@@ -36,6 +36,7 @@
     <!-- Modal Dialog (using VInput & VSelectInput) -->
     <lazy-home-customer-modal
       :is-open="isModalOpen"
+      :saving="isSaving"
       :editing-customer="selectedCustomer"
       :status-options="statusOptions"
       @close="closeModal"
@@ -53,7 +54,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { Status, Customer, Filter } from "~/types/home";
+import type {
+  Status,
+  Customer,
+  CustomerInput,
+  Filter,
+} from "~/types/home";
 import type { SelectOption } from "~/types/shared/VSelectInput";
 
 const statusOptions: SelectOption[] = [
@@ -62,76 +68,15 @@ const statusOptions: SelectOption[] = [
   { label: "Follow Up", value: "follow-up", badgeClass: "bg-orange-500" },
 ];
 
-// Stand-in for the API response; replace fetchCustomers with the real request
-const seedCustomers: Customer[] = [
-  {
-    id: 1,
-    name: "Sara Al-Mansoori",
-    initials: "SA",
-    status: "active",
-    city: "Riyadh",
-    phone: "+966 50 123 4567",
-    email: "sara.almansoori@example.com",
-    avatarClass:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400",
-  },
-  {
-    id: 2,
-    name: "Omar Al-Kindi",
-    initials: "OK",
-    status: "new",
-    city: "Dubai",
-    phone: "+971 52 987 6543",
-    email: "omar.alkindi@example.com",
-    avatarClass:
-      "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
-  },
-  {
-    id: 3,
-    name: "Fatima Al-Sharif",
-    initials: "FA",
-    status: "active",
-    city: "Jeddah",
-    phone: "+966 55 432 1098",
-    email: "fatima.alsharif@example.com",
-    avatarClass:
-      "bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-400",
-  },
-  {
-    id: 4,
-    name: "Khaled Al-Otaibi",
-    initials: "KO",
-    status: "follow-up",
-    city: "Kuwait City",
-    phone: "+965 99 876 5432",
-    email: "khaled.alotaibi@example.com",
-    avatarClass:
-      "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400",
-  },
-  {
-    id: 5,
-    name: "Maryam Al-Hashemi",
-    initials: "MA",
-    status: "active",
-    city: "Doha",
-    phone: "+974 33 210 9876",
-    email: "maryam.alhashemi@example.com",
-    avatarClass:
-      "bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400",
-  },
-];
-
-const customers = ref<Customer[]>([]);
+const customerStore = useCustomerStore();
+const customers = computed(() => customerStore.items);
 const isLoading = ref(true);
-
-const fetchCustomers = () =>
-  new Promise<Customer[]>((resolve) =>
-    setTimeout(() => resolve(seedCustomers), 1200)
-  );
 
 onMounted(async () => {
   try {
-    customers.value = await fetchCustomers();
+    await customerStore.fetchAll();
+  } catch {
+    addToast({ type: "error", message: "Could not load customers, try again" });
   } finally {
     isLoading.value = false;
   }
@@ -192,8 +137,8 @@ const visibleCustomers = computed(() => {
   return list.filter(
     (c) =>
       c.name.toLowerCase().includes(query) ||
-      c.email.toLowerCase().includes(query) ||
-      c.city.toLowerCase().includes(query) ||
+      (c.email ?? "").toLowerCase().includes(query) ||
+      (c.city ?? "").toLowerCase().includes(query) ||
       c.phone.replace(/\s/g, "").includes(query.replace(/\s/g, ""))
   );
 });
@@ -229,7 +174,7 @@ const resetFilters = () => {
 const isDeleteDialogOpen = ref(false);
 const customerToDelete = ref<Customer | null>(null);
 
-const promptDeleteCustomer = (id: number) => {
+const promptDeleteCustomer = (id: string) => {
   const target = customers.value.find((c) => c.id === id);
   if (target) {
     customerToDelete.value = target;
@@ -237,19 +182,24 @@ const promptDeleteCustomer = (id: number) => {
   }
 };
 
-const confirmDeleteCustomer = () => {
-  if (customerToDelete.value) {
-    const name = customerToDelete.value.name;
-    customers.value = customers.value.filter(
-      (c) => c.id !== customerToDelete.value!.id
-    );
+const confirmDeleteCustomer = async () => {
+  const target = customerToDelete.value;
+  if (!target) return;
+  try {
+    await customerStore.remove(target.id);
     addToast({
       type: "success",
-      message: `Customer "${name}" deleted successfully`,
+      message: `Customer "${target.name}" deleted successfully`,
     });
+  } catch {
+    addToast({
+      type: "error",
+      message: "Could not delete the customer, try again",
+    });
+  } finally {
+    isDeleteDialogOpen.value = false;
+    customerToDelete.value = null;
   }
-  isDeleteDialogOpen.value = false;
-  customerToDelete.value = null;
 };
 
 // Modal & Form State
@@ -271,56 +221,28 @@ const closeModal = () => {
   selectedCustomer.value = null;
 };
 
-const getInitials = (name: string) => {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2 && parts[0] && parts[1]) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
-};
+const isSaving = ref(false);
 
-const handleSaveCustomer = (data: {
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  status: Status;
-}) => {
-  if (selectedCustomer.value) {
-    const idx = customers.value.findIndex(
-      (c) => c.id === selectedCustomer.value!.id
-    );
-    if (idx !== -1) {
-      customers.value[idx] = {
-        ...customers.value[idx]!,
-        ...data,
-        initials: getInitials(data.name),
-      };
+const handleSaveCustomer = async (data: CustomerInput) => {
+  isSaving.value = true;
+  try {
+    if (selectedCustomer.value) {
+      await customerStore.update(selectedCustomer.value.id, data);
       addToast({ type: "success", message: "Customer updated successfully" });
+    } else {
+      await customerStore.create(data);
+      addToast({ type: "success", message: "Customer added successfully" });
     }
-  } else {
-    const colors = [
-      "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400",
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400",
-      "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
-      "bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-400",
-    ];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)]!;
-
-    customers.value.unshift({
-      id: Date.now(),
-      name: data.name,
-      initials: getInitials(data.name),
-      status: data.status,
-      city: data.city,
-      phone: data.phone,
-      email: data.email,
-      avatarClass: randomColor,
+    closeModal();
+  } catch {
+    // Keep the modal open so the user's input isn't lost.
+    addToast({
+      type: "error",
+      message: "Could not save the customer, try again",
     });
-    addToast({ type: "success", message: "Customer added successfully" });
+  } finally {
+    isSaving.value = false;
   }
-
-  closeModal();
 };
 
 definePageMeta({

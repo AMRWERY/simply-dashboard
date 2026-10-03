@@ -1,116 +1,111 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="emit('close')"
-    >
       <div
-        class="modal-panel relative w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl dark:bg-[#1e1f2b] dark:text-white sm:p-6"
+        v-if="isOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        @click.self="emit('close')"
       >
-        <!-- Modal Header -->
         <div
-          class="flex items-center justify-center border-b border-gray-100 pb-3 dark:border-gray-800"
+          class="modal-panel relative w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl dark:bg-[#1e1f2b] dark:text-white sm:p-6"
         >
-          <h2 class="text-base font-extrabold sm:text-lg">
-            {{ editingCustomer ? "Update Customer" : "Add New Customer" }}
-          </h2>
-        </div>
-
-        <!-- Form using VInput and VSelectInput (1 input per row, compact height) -->
-        <form @submit.prevent="handleSubmit" class="mt-3.5 space-y-2.5">
-          <!-- Customer Name -->
-          <LazyVInput
-            v-model="form.name"
-            label="Customer Name"
-            placeholder="e.g. Sultan Al-Ghamdi"
-            compact
-          />
-
-          <!-- Email -->
-          <LazyVInput
-            v-model="form.email"
-            label="Email"
-            type="email"
-            placeholder="example@example.com"
-            dir="ltr"
-            compact
-          />
-
-          <!-- Phone -->
-          <LazyVInput
-            v-model="form.phone"
-            label="Phone"
-            type="tel"
-            placeholder="+20 102 000 0000"
-            dir="ltr"
-            compact
-          />
-
-          <!-- City -->
-          <LazyVInput
-            v-model="form.city"
-            label="City"
-            placeholder="Cairo, Alexandria, etc."
-            compact
-          />
-
-          <!-- Status -->
-          <LazyVSelectInput
-            v-model="form.status"
-            label="Status"
-            :options="statusOptions"
-            compact
-          />
-
-          <!-- Actions -->
-          <div class="mt-4 flex justify-end gap-2.5 pt-2">
-            <LazyVButton
-              variant="secondary"
-              size="sm"
-              @click="emit('close')"
-            >
-              Cancel
-            </LazyVButton>
-            
-            <LazyVButton
-              type="submit"
-              variant="primary"
-              size="sm"
-            >
-              {{ editingCustomer ? "Save Changes" : "Create Customer" }}
-            </LazyVButton>
+          <!-- Modal Header -->
+          <div
+            class="flex items-center justify-center border-b border-gray-100 pb-3 dark:border-gray-800"
+          >
+            <h2 class="text-base font-extrabold sm:text-lg">
+              {{ editingCustomer ? "Update Customer" : "Add New Customer" }}
+            </h2>
           </div>
-        </form>
+
+          <!-- Form using VInput and VSelectInput (1 input per row, compact height) -->
+          <Form @submit="handleSubmit" class="mt-3.5 space-y-2.5">
+            <!-- Customer Name -->
+            <LazyVInput
+              v-model="form.name"
+              name="name"
+              label="Customer Name"
+              placeholder="e.g. Sultan Al-Ghamdi"
+              rules="required"
+              compact
+            />
+
+            <!-- Email -->
+            <LazyVInput
+              v-model="form.email"
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="example@example.com"
+              rules="email"
+              dir="ltr"
+              compact
+            />
+
+            <!-- Phone -->
+            <LazyVInput
+              v-model="form.phone"
+              name="phone"
+              label="Phone"
+              type="tel"
+              placeholder="+20 102 000 0000"
+              rules="required"
+              dir="ltr"
+              compact
+            />
+
+            <!-- City -->
+            <LazyVInput
+              v-model="form.city"
+              label="City"
+              placeholder="Cairo, Alexandria, etc."
+              compact
+            />
+
+            <!-- Status -->
+            <LazyVSelectInput
+              v-model="form.status"
+              label="Status"
+              :options="statusOptions"
+              compact
+            />
+
+            <!-- Actions -->
+            <div class="mt-4 flex justify-end gap-2.5 pt-2">
+              <LazyVButton variant="secondary" size="sm" @click="emit('close')">
+                Cancel
+              </LazyVButton>
+
+              <LazyVButton
+                type="submit"
+                variant="primary"
+                size="sm"
+                :loading="saving"
+              >
+                {{ editingCustomer ? "Save Changes" : "Create Customer" }}
+              </LazyVButton>
+            </div>
+          </Form>
+        </div>
       </div>
-    </div>
     </Transition>
   </Teleport>
 </template>
 
 <script lang="ts" setup>
-import type { Customer, Status } from "~/types/home";
+import type { Customer, CustomerInput, Status } from "~/types/home";
 import type { SelectOption } from "~/types/shared/VSelectInput";
 
 const props = defineProps<{
   isOpen: boolean;
   editingCustomer: Customer | null;
   statusOptions: SelectOption[];
+  saving?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "close"): void;
-  (
-    e: "save",
-    data: {
-      name: string;
-      email: string;
-      phone: string;
-      city: string;
-      status: Status;
-    }
-  ): void;
+  (e: "save", data: CustomerInput): void;
 }>();
 
 const form = ref<{
@@ -124,7 +119,7 @@ const form = ref<{
   email: "",
   phone: "",
   city: "",
-  status: "active",
+  status: "new",
 });
 
 watch(
@@ -133,9 +128,9 @@ watch(
     if (customer) {
       form.value = {
         name: customer.name,
-        email: customer.email,
+        email: customer.email ?? "",
         phone: customer.phone,
-        city: customer.city,
+        city: customer.city ?? "",
         status: customer.status,
       };
     } else {
@@ -144,11 +139,11 @@ watch(
         email: "",
         phone: "",
         city: "",
-        status: "active",
+        status: "new",
       };
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -160,10 +155,10 @@ watch(
         email: "",
         phone: "",
         city: "",
-        status: "active",
+        status: "new",
       };
     }
-  }
+  },
 );
 
 const handleSubmit = () => {
@@ -176,16 +171,19 @@ const handleSubmit = () => {
 .modal-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .modal-enter-active .modal-panel,
 .modal-leave-active .modal-panel {
   transition:
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.2s ease;
 }
+
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
 }
+
 .modal-enter-from .modal-panel,
 .modal-leave-to .modal-panel {
   opacity: 0;

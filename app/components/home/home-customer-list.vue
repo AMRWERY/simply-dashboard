@@ -41,7 +41,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "edit", customer: Customer): void;
-  (e: "delete", id: number): void;
+  (e: "delete", id: string): void;
   (e: "reset"): void;
 }>();
 </script>

@@ -73,6 +73,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         names: {
           email: "Email",
           password: "Password",
+          name: "Customer Name",
+          phone: "Phone",
         },
       },
       ar: {
@@ -84,6 +86,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         names: {
           email: "البريد الإلكتروني",
           password: "كلمة المرور",
+          name: "اسم العميل",
+          phone: "رقم الهاتف",
         },
       },
     }),
