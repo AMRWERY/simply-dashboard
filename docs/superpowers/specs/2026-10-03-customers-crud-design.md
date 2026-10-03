@@ -50,7 +50,7 @@ The migration is re-runnable (`drop policy if exists`, `create table if not exis
   Trims name/phone, stores empty email/city as `null`, defaults status to `new`.
   `update`/`remove` throw when no row is affected (missing or not owned).
 - `app/pages/index.vue`: remove seed data / fake fetch / local `getInitials`; use the store; save and delete are async with error toasts; modal stays open on failure.
-- `home-customer-modal.vue`: `required` only on name and phone; `saving` prop disables/loads the submit button; default status `new`; null-safe edit prefill.
+- `home-customer-modal.vue`: validated with vee-validate (`<Form>` + `rules="required"` on name and phone, `rules="email"` on the optional email), no native `required`; field display names added in `plugins/vee-validate.ts`; `saving` prop disables/loads the submit button; default status `new`; null-safe edit prefill.
 - `home-customer-card.vue` / `home-customer-list.vue`: `id` is `string`; city and email lines render only when present.
 - Search handles null email/city.
 

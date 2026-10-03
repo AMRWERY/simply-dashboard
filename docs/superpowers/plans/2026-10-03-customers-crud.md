@@ -21,7 +21,7 @@
 
 ## Review Focus
 
-- Whitespace-only name or phone must be rejected (store trims; DB check rejects blank). (Tasks 1, 3)
+- Whitespace-only name or phone must be rejected (store trims; DB check rejects blank). (Tasks 1, 3, 4: vee-validate `required` rejects whitespace; the DB check is the backstop)
 - Empty email/city saved as `null`; card hides those lines; edit modal prefills them as empty; search does not crash on null. (Tasks 3, 4)
 - Updating/deleting a row the user does not own (or that no longer exists) affects 0 rows and must surface as an error toast, not a fake success. (Tasks 1, 3, 4)
 - A failed save keeps the modal open with the user's input. (Task 4)
@@ -333,6 +333,7 @@ git commit -m "feat(customers): add customer store backed by Supabase"
 **Files:**
 - Modify: `app/pages/index.vue` (script: remove `seedCustomers`, fake `fetchCustomers`, `getInitials`, local create/update/delete logic)
 - Modify: `app/components/home/home-customer-modal.vue`
+- Modify: `app/plugins/vee-validate.ts` (field display names)
 - Modify: `app/components/home/home-customer-card.vue`
 - Modify: `app/components/home/home-customer-list.vue` (emit types)
 
@@ -422,14 +423,22 @@ const handleSaveCustomer = async (data: CustomerInput) => {
 
 In the template, pass `:saving="isSaving"` to the `home-customer-modal` element.
 
-- [ ] **Step 5: Modal**
+- [ ] **Step 5: Modal — validate with vee-validate (not native `required`)**
 
 In `home-customer-modal.vue`:
-- Remove `required` from the **Email** and **City** `LazyVInput`s (keep it on Name and Phone).
+- Replace `<form @submit.prevent="handleSubmit" ...>` with vee-validate's `<Form @submit="handleSubmit" class="mt-3.5 space-y-2.5">` (and the closing tag). `Form` is auto-imported (`veeValidate.autoImports`) and is used the same way in `login-card.vue`; it validates every registered field and only calls `@submit` when all pass.
+- Remove the native `required` attribute from **all** four inputs and give `VInput` a `name` plus `rules` (keeping the existing `v-model`; `VInput` registers itself via `useField` with `syncVModel`):
+  - Name: `name="name" rules="required"`
+  - Phone: `name="phone" rules="required"`
+  - Email: `name="email" rules="email"` (the `email` rule passes an empty value, so it stays optional but must be valid when filled in)
+  - City: no `name`/`rules` (optional)
+- `required` rejects empty **and** whitespace-only values (checked against `@vee-validate/rules`).
 - Add `saving?: boolean` to `defineProps`, and `:loading="saving"` on the submit `LazyVButton`.
-- Change the emitted type to `CustomerInput` (`import type { Customer, CustomerInput, Status } from "~/types/home";`): `(e: "save", data: CustomerInput): void;`.
-- Default status becomes `"new"` in all three places that reset the form (`ref` initial value and both watchers).
+- Change the emitted type to `CustomerInput` (`import type { Customer, CustomerInput, Status } from "~/types/home";`): `(e: "save", data: CustomerInput): void;`. `handleSubmit` keeps emitting `{ ...form.value }`.
+- Default status becomes `"new"` in all three places that reset the form (the `ref` initial value and both watchers).
 - Prefill uses `email: customer.email ?? ""` and `city: customer.city ?? ""`.
+
+Field names in messages: in `app/plugins/vee-validate.ts`, add to the `names` maps: English `name: "Customer Name", phone: "Phone"`; Arabic `name: "اسم العميل", phone: "رقم الهاتف"`, so the errors read "Customer Name is required" / "Phone is required".
 
 - [ ] **Step 6: Card and list**
 
@@ -454,7 +463,7 @@ git commit -m "feat(customers): load and persist customers via Supabase"
 
 - [ ] **Step 1:** Log in, open the home page → skeleton, then an empty list (new table). Add a customer with only name + phone → card appears with no email/city lines; reload → still there.
 - [ ] **Step 2:** Add one with every field; edit it (change city, clear email) → card updates, email line disappears; reload to confirm.
-- [ ] **Step 3:** Submit a name of only spaces → blocked (error toast or native validation); no row created.
+- [ ] **Step 3:** Submit with empty name, then empty phone, then a name of only spaces → each blocked with an inline vee-validate message ("Customer Name is required" / "Phone is required"); no row created. A malformed email (e.g. `abc`) is blocked too; an empty email is accepted.
 - [ ] **Step 4:** Delete a customer → success toast, gone after reload. Delete the only card on page 2 → pagination returns to page 1.
 - [ ] **Step 5:** Search for text that exists only in a city/email, and for a customer with a null email → no crash.
 - [ ] **Step 6:** Log in as a second user → empty list; customers of the first user are not visible.
