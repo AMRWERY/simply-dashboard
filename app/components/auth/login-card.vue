@@ -77,6 +77,7 @@
               rules="required|min:8"
               dir="ltr"
             >
+              <!-- Forgot password: disabled until the reset flow is built
               <template #label-end>
                 <nuxt-link-locale
                   to="#"
@@ -85,6 +86,7 @@
                   Forgot password?
                 </nuxt-link-locale>
               </template>
+              -->
             </LazyVInput>
 
             <!-- Remember me -->
@@ -157,18 +159,12 @@ const isLoading = ref(false);
 // Called by vee-validate <Form> only when all fields are valid
 const submit = async (values: Record<string, string>) => {
   isLoading.value = true;
-  console.log("Form values:", values, "remember:", remember.value);
   try {
-    // Simulate auth API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    authStore.login({
-      id: "1",
-      email: values.email || "admin@company.com",
-      name: values.email ? values.email.split("@")[0] : "Admin",
-      token: "session-token-" + Date.now(),
-    });
-
+    await authStore.login(
+      values.email ?? "",
+      values.password ?? "",
+      remember.value,
+    );
     await navigateTo(localePath("/"));
   } catch {
     addToast({ type: "error", message: "Incorrect email or password" });

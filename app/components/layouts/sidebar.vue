@@ -200,7 +200,7 @@ const isReportsActive = computed(() => {
 });
 
 const handleLogout = async () => {
-  auth.logout();
+  await auth.logout();
   await navigateTo(localePath("/auth"));
 };
 </script>
