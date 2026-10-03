@@ -70,6 +70,7 @@ const statusOptions: SelectOption[] = [
 ];
 
 const customerStore = useCustomerStore();
+const { add: addToast } = useToast();
 const customers = computed(() => customerStore.items);
 const isLoading = ref(true);
 
