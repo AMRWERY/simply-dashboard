@@ -1,10 +1,20 @@
 import type { AuthUser } from "~/types/auth";
+import type { Database } from "~/types/database.types";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
+const AVATAR_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
 export const useAuthStore = defineStore("auth", () => {
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient<Database>();
   const supabaseUser = useSupabaseUser();
+
+  const avatarUrl = useState<string | null>("avatar_url", () => null);
 
   // Long-lived: did the user tick "Remember me"?
   const remember = useCookie<"1" | "0" | null>("remember", {
@@ -59,9 +69,73 @@ export const useAuthStore = defineStore("auth", () => {
     // session is not silently promoted to a remembered one.
     if (error) throw error;
     supabaseUser.value = null;
+    avatarUrl.value = null;
     remember.value = null;
     sessionAlive.value = null;
   }
 
-  return { user, isAuthenticated, remember, sessionAlive, login, logout };
+  async function fetchProfile() {
+    const id = supabaseUser.value?.sub;
+    if (!id) {
+      avatarUrl.value = null;
+      return;
+    }
+    const { data } = await supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", id)
+      .maybeSingle();
+    avatarUrl.value = data?.avatar_url ?? null;
+  }
+
+  /** Throws Error("invalid-type" | "too-large") for client-side rejections. */
+  async function uploadAvatar(file: File) {
+    const id = supabaseUser.value?.sub;
+    if (!id) throw new Error("not-authenticated");
+
+    const ext = AVATAR_TYPES[file.type];
+    if (!ext) throw new Error("invalid-type");
+    if (file.size > AVATAR_MAX_BYTES) throw new Error("too-large");
+
+    const bucket = supabase.storage.from("avatars");
+    const path = `${id}/avatar-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await bucket.upload(path, file, {
+      contentType: file.type,
+      cacheControl: "31536000",
+    });
+    if (uploadError) throw uploadError;
+
+    const { data } = bucket.getPublicUrl(path);
+    const previous = avatarUrl.value;
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        avatar_url: data.publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+    if (updateError) {
+      await bucket.remove([path]); // don't leave an orphan file
+      throw updateError;
+    }
+
+    avatarUrl.value = data.publicUrl;
+
+    const previousPath = previous?.split("/avatars/")[1];
+    if (previousPath) await bucket.remove([previousPath]);
+  }
+
+  return {
+    user,
+    isAuthenticated,
+    remember,
+    sessionAlive,
+    avatarUrl,
+    login,
+    logout,
+    fetchProfile,
+    uploadAvatar,
+  };
 });
