@@ -37,5 +37,22 @@ export function toCustomer(row: CustomerRow): Customer {
     phone: row.phone,
     email: row.email,
     avatarClass: avatarClassFor(row.id),
+    amountDue: Number(row.amount_due),
+    amountPaid: Number(row.amount_paid),
   };
+}
+
+/** Money owed but not yet paid, never negative, rounded to cents. */
+export function remainingAmount(customer: Pick<Customer, "amountDue" | "amountPaid">): number {
+  return Math.max(0, Math.round((customer.amountDue - customer.amountPaid) * 100) / 100);
+}
+
+/** Format an amount in EGP. Western digits in both languages. */
+export function formatMoney(amount: number, locale: string): string {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-EG", {
+    style: "currency",
+    currency: "EGP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
 }

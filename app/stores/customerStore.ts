@@ -1,6 +1,8 @@
 import type { Database } from "~/types/database.types";
 import type { Customer, CustomerInput } from "~/types/home";
 
+const roundMoney = (n: number | undefined) => Math.round((n ?? 0) * 100) / 100;
+
 export const useCustomerStore = defineStore("customers", () => {
   const supabase = useSupabaseClient<Database>();
   const items = ref<Customer[]>([]);
@@ -12,6 +14,8 @@ export const useCustomerStore = defineStore("customers", () => {
       email: input.email?.trim() || null,
       city: input.city?.trim() || null,
       status: input.status ?? "new",
+      amount_due: roundMoney(input.amountDue),
+      amount_paid: roundMoney(input.amountPaid),
     };
   }
 

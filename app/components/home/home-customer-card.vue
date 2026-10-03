@@ -81,6 +81,47 @@
           }}</span>
         </p>
       </div>
+
+      <!-- Payment: shown only when the customer owes something -->
+      <div
+        v-if="customer.amountDue > 0"
+        class="mt-4 space-y-1.5 rounded-2xl bg-gray-50/80 p-3 text-xs dark:bg-gray-800/40"
+      >
+        <p class="flex items-center justify-between gap-2">
+          <span class="font-bold text-gray-700 dark:text-gray-300">
+            Amount due
+          </span>
+          <span dir="ltr" class="font-medium text-gray-700 dark:text-gray-300">
+            {{ money(customer.amountDue) }}
+          </span>
+        </p>
+        <p class="flex items-center justify-between gap-2">
+          <span class="font-bold text-gray-700 dark:text-gray-300">Paid</span>
+          <span dir="ltr" class="font-medium text-emerald-600 dark:text-emerald-400">
+            {{ money(customer.amountPaid) }}
+          </span>
+        </p>
+        <p
+          class="flex items-center justify-between gap-2 border-t border-dashed border-gray-200 pt-1.5 dark:border-gray-700"
+        >
+          <span class="font-bold text-gray-700 dark:text-gray-300">
+            Remaining
+          </span>
+          <span
+            v-if="remaining > 0"
+            dir="ltr"
+            class="rounded-full bg-amber-100 px-2.5 py-0.5 font-extrabold text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+          >
+            {{ money(remaining) }}
+          </span>
+          <span
+            v-else
+            class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-extrabold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+          >
+            Fully paid
+          </span>
+        </p>
+      </div>
     </div>
 
     <!-- Actions -->
@@ -110,10 +151,14 @@
 <script lang="ts" setup>
 import type { Customer, Status } from "~/types/home";
 
-defineProps<{
+const props = defineProps<{
   customer: Customer;
   statusStyles: Record<Status, { label: string; class: string }>;
 }>();
+
+const { locale } = useI18n();
+const money = (amount: number) => formatMoney(amount, locale.value);
+const remaining = computed(() => remainingAmount(props.customer));
 
 const emit = defineEmits<{
   (e: "edit", customer: Customer): void;
