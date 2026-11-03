@@ -141,5 +141,6 @@
   "current_password_incorrect": "Your current password is incorrect",
   "password_same_as_current": "The new password must be different from the current one",
   "password_updated": "Password updated. Please sign in again with your new password.",
-  "password_update_failed": "Could not update the password, try again"
+  "password_update_failed": "Could not update the password, try again",
+  "network_error": "Could not reach the server. Check your connection, or turn off ad blockers and browser extensions for this site, then try again."
 }

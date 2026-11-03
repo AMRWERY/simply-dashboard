@@ -86,6 +86,13 @@ const statusOptions = computed<SelectOption[]>(() => [
 
 const customerStore = useCustomerStore();
 const { add: addToast } = useToast();
+
+// A request that never completes (offline, blocked by an extension) gets its
+// own, longer message instead of the generic "could not save".
+const failureToast = (e: unknown, fallbackKey: string) =>
+  isNetworkError(e)
+    ? { type: "error" as const, message: t("network_error"), duration: 9000 }
+    : { type: "error" as const, message: t(fallbackKey) };
 const customers = computed(() => customerStore.items);
 const isLoading = ref(true);
 
@@ -94,7 +101,7 @@ onMounted(async () => {
     await customerStore.fetchAll();
   } catch (e) {
     console.error("[customers] load failed", e);
-    addToast({ type: "error", message: t("customers_load_failed") });
+    addToast(failureToast(e, "customers_load_failed"));
   } finally {
     isLoading.value = false;
   }
@@ -217,10 +224,7 @@ const confirmDeleteCustomer = async () => {
     });
   } catch (e) {
     console.error("[customers] delete failed", e);
-    addToast({
-      type: "error",
-      message: t("customer_delete_failed"),
-    });
+    addToast(failureToast(e, "customer_delete_failed"));
   } finally {
     isDeleting.value = false;
     isDeleteDialogOpen.value = false;
@@ -281,10 +285,7 @@ const handleSaveCustomer = async (data: CustomerInput) => {
   } catch (e) {
     // Keep the modal open so the user's input isn't lost.
     console.error("[customers] save failed", e);
-    addToast({
-      type: "error",
-      message: t("customer_save_failed"),
-    });
+    addToast(failureToast(e, "customer_save_failed"));
   } finally {
     isSaving.value = false;
   }
