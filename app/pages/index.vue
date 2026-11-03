@@ -7,7 +7,11 @@
     />
 
     <!-- Earnings summary (all customers, not affected by filters) -->
-    <lazy-home-earnings v-if="!isLoading" :customers="customers" />
+    <lazy-home-earnings
+      v-if="!isLoading"
+      :customers="customers"
+      :payments="payments"
+    />
 
     <!-- Toolbar: Search & Filters -->
     <lazy-home-toolbar
@@ -102,7 +106,16 @@ const failureToast = (e: unknown, fallbackKey: string) =>
 const customers = computed(() => customerStore.items);
 const isLoading = ref(true);
 
+const paymentStore = usePaymentStore();
+const payments = computed(() => paymentStore.items);
+// Payments are recorded by the database when a customer's paid amount changes,
+// so reload them after anything that can change it. A failure here only leaves
+// the earnings tile stale; it must never break the customer list.
+const refreshPayments = () =>
+  paymentStore.fetchAll().catch((e) => console.error("[payments] load failed", e));
+
 onMounted(async () => {
+  const loadingPayments = refreshPayments();
   try {
     await customerStore.fetchAll();
   } catch (e) {
@@ -111,6 +124,7 @@ onMounted(async () => {
   } finally {
     isLoading.value = false;
   }
+  await loadingPayments;
 });
 
 const searchQuery = ref("");
@@ -228,6 +242,7 @@ const confirmDeleteCustomer = async () => {
       type: "success",
       message: t("customer_deleted", { name: target.name }),
     });
+    refreshPayments(); // their payments go with them
   } catch (e) {
     console.error("[customers] delete failed", e);
     addToast(failureToast(e, "customer_delete_failed"));
@@ -308,6 +323,7 @@ const handleSaveCustomer = async (data: CustomerInput) => {
       addToast({ type: "success", message: t("customer_added") });
     }
     closeModal();
+    refreshPayments(); // a changed paid amount is a new payment entry
   } catch (e) {
     // Keep the modal open so the user's input isn't lost.
     console.error("[customers] save failed", e);

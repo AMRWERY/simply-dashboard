@@ -85,6 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
     supabaseUser.value = null;
     avatarUrl.value = null;
     useCustomerStore().reset();
+    usePaymentStore().reset();
     remember.value = null;
     sessionAlive.value = null;
   };

@@ -1,4 +1,4 @@
-import type { Customer } from "~/types/home";
+import type { Customer, Payment } from "~/types/home";
 
 /**
  * Builds and downloads the customer report PDF (see utils/reportPdf.ts).
@@ -9,12 +9,17 @@ export const useReportPdf = () => {
   const baseURL = useRuntimeConfig().app.baseURL;
   const isExporting = ref(false);
 
-  const exportReport = async (customers: Customer[], filename: string) => {
+  const exportReport = async (
+    customers: Customer[],
+    payments: Payment[],
+    filename: string,
+  ) => {
     if (isExporting.value) return;
     isExporting.value = true;
     try {
       const doc = await buildReportPdf({
         customers,
+        payments,
         locale: locale.value,
         t: (key, named) => t(key, named ?? {}),
         baseURL,

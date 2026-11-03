@@ -11,3 +11,9 @@ export const normalizePhone = (value: string): string =>
 
 export const isValidPhone = (value: string): boolean =>
   /^01\d{9}$/.test(normalizePhone(value));
+
+/** wa.me link for an Egyptian mobile number (01XXXXXXXXX → country code 20), or "" if invalid. */
+export const whatsappUrl = (value: string): string => {
+  const phone = normalizePhone(value);
+  return /^01\d{9}$/.test(phone) ? `https://wa.me/20${phone.slice(1)}` : "";
+};

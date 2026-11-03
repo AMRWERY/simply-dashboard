@@ -51,6 +51,16 @@ export interface Customer {
   schedules: ScheduleEntry[];
 }
 
+/** Money received from a customer on a given date (negative = a downward correction). */
+export interface Payment {
+  id: string;
+  customerId: string;
+  customerName: string;
+  amount: number;
+  /** ISO timestamp. */
+  paidAt: string;
+}
+
 export interface CustomerInput {
   name: string;
   phone: string;

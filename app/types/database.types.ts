@@ -56,6 +56,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      customer_payments: {
+        Row: {
+          id: string;
+          customer_id: string;
+          owner_id: string;
+          amount: number;
+          paid_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          owner_id: string;
+          amount: number;
+          paid_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          owner_id?: string;
+          amount?: number;
+          paid_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customer_payments_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customer_schedules: {
         Row: {
           id: string;

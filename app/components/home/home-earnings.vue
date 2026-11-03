@@ -38,29 +38,47 @@
         >
           {{ money(tile.shown) }}
         </p>
+        <p
+          v-if="tile.caption"
+          class="mt-0.5 truncate text-[11px] font-semibold text-gray-400 dark:text-gray-500"
+        >
+          {{ tile.caption }}
+        </p>
       </div>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
-import type { Customer } from "~/types/home";
+import type { Customer, Payment } from "~/types/home";
 
-const props = defineProps<{ customers: Customer[] }>();
+const props = defineProps<{
+  customers: Customer[];
+  /** The payment history; the first tile shows only the current calendar month of it. */
+  payments: Payment[];
+}>();
 
 const { locale, t } = useI18n();
 const money = (amount: number) => formatMoney(amount, locale.value);
 
 const totals = computed(() => summarizeEarnings(props.customers));
 
-const earned = useCountUp(computed(() => totals.value.earned));
+// Checked every minute, so on the 1st the tile moves on to the new month (and starts at 0).
+const now = useNowEvery(60_000);
+const monthEarned = useCountUp(
+  computed(() => earningsInMonth(props.payments, now.value)),
+);
+const monthName = computed(() =>
+  monthLabel(now.value.getFullYear(), now.value.getMonth(), locale.value),
+);
 const outstanding = useCountUp(computed(() => totals.value.outstanding));
 const billed = useCountUp(computed(() => totals.value.billed));
 
 const tiles = computed(() => [
   {
-    label: t("total_earnings"),
-    shown: earned.value,
+    label: t("earnings_this_month"),
+    shown: monthEarned.value,
+    caption: monthName.value,
     valueClass: "text-emerald-600 dark:text-emerald-400",
     iconClass:
       "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400",

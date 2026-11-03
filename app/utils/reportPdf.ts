@@ -42,6 +42,7 @@ const clean = (s: string) => s.replace(/[‎‏؜‪-‮]/g, "").replace(/[  
  */
 export const buildReportPdf = async ({
   customers,
+  payments,
   locale,
   t,
   baseURL,
@@ -208,6 +209,30 @@ export const buildReportPdf = async ({
     ],
     [1],
   );
+
+  // ── Monthly earnings ─────────────────────────────────────────────────────
+  const monthRows = monthlyEarnings(payments);
+  section(
+    t("monthly_earnings"),
+    undefined,
+    monthRows.length ? tableHeight(Math.min(monthRows.length, 6)) : 8,
+  );
+  if (!monthRows.length) {
+    setFont("normal", 10, MUTED);
+    text(t("no_payments_yet"), edge, y);
+    y += 10;
+  } else {
+    table(
+      [t("month"), t("customers"), t("payments"), t("total_earnings")],
+      monthRows.map((m) => [
+        monthLabel(m.year, m.month, locale),
+        String(m.customers),
+        String(m.count),
+        money(m.total),
+      ]),
+      [1, 2, 3],
+    );
+  }
 
   // ── 2. Top debtors ───────────────────────────────────────────────────────
   const debtors = topDebtors(customers, 10);

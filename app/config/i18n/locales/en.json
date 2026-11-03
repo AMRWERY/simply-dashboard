@@ -156,6 +156,7 @@
   "schedule_update_failed": "Could not update the schedule, try again",
   "phone_required": "Phone is required",
   "phone_invalid": "Phone must be 11 digits and start with 01",
+  "whatsapp_chat": "Chat on WhatsApp",
   "today": "Today",
   "previous_month": "Previous month",
   "next_month": "Next month",
@@ -172,5 +173,18 @@
   "overdue_count": "{count} overdue",
   "next": "Next",
   "show_all_dates": "Show all dates",
-  "hide_all_dates": "Hide dates"
+  "hide_all_dates": "Hide dates",
+  "earnings_this_month": "Earnings this month",
+  "monthly_earnings": "Monthly earnings",
+  "monthly_earnings_description": "Select a month to see its payments.",
+  "month": "Month",
+  "payments": "Payments",
+  "this_month": "This month",
+  "all_time": "All time",
+  "no_payments_yet": "No payments recorded yet",
+  "no_payments_this_month": "No payments were recorded this month.",
+  "by_customer": "By customer",
+  "correction": "Correction",
+  "payments_note": "Each change to a customer's paid amount is recorded as a payment on the day it was made. Lowering an amount appears as a correction.",
+  "view_month_details": "View payments for {month}"
 }

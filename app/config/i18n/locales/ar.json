@@ -156,6 +156,7 @@
   "schedule_update_failed": "تعذّر تحديث الجدول، حاول مرة أخرى",
   "phone_required": "رقم الهاتف مطلوب",
   "phone_invalid": "يجب أن يتكون رقم الهاتف من 11 رقمًا ويبدأ بـ 01",
+  "whatsapp_chat": "محادثة على واتساب",
   "today": "اليوم",
   "previous_month": "الشهر السابق",
   "next_month": "الشهر التالي",
@@ -172,5 +173,18 @@
   "overdue_count": "{count} متأخر",
   "next": "التالي",
   "show_all_dates": "عرض كل المواعيد",
-  "hide_all_dates": "إخفاء المواعيد"
+  "hide_all_dates": "إخفاء المواعيد",
+  "earnings_this_month": "أرباح هذا الشهر",
+  "monthly_earnings": "الأرباح الشهرية",
+  "monthly_earnings_description": "اختر شهرًا لعرض مدفوعاته.",
+  "month": "الشهر",
+  "payments": "المدفوعات",
+  "this_month": "هذا الشهر",
+  "all_time": "الإجمالي الكلي",
+  "no_payments_yet": "لا توجد مدفوعات مسجلة بعد",
+  "no_payments_this_month": "لم تُسجَّل أي مدفوعات في هذا الشهر.",
+  "by_customer": "حسب العميل",
+  "correction": "تصحيح",
+  "payments_note": "كل تغيير في المبلغ المدفوع لعميل يُسجَّل كدفعة في اليوم الذي تم فيه. وتظهر تخفيضات المبلغ كتصحيح.",
+  "view_month_details": "عرض مدفوعات {month}"
 }

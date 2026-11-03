@@ -56,11 +56,13 @@
     <!-- 1. Money summary -->
     <reports-summary :customers="customers" />
 
-    <!-- 2 + 3. Who owes you, and the status split -->
-    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-      <reports-top-debtors :customers="customers" class="lg:col-span-2" />
-      <reports-status-donut :customers="customers" />
-    </div>
+    <!-- Earnings for every month; a row opens that month's payments -->
+    <reports-monthly-earnings :payments="payments" @select="openMonth" />
+    <reports-month-dialog
+      :is-open="!!selectedMonth"
+      :month="selectedMonth"
+      @close="selectedKey = null"
+    />
 
     <!-- 4 + 5. Growth and cities -->
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -74,10 +76,17 @@
 const { locale, t } = useI18n();
 
 const customerStore = useCustomerStore();
+const paymentStore = usePaymentStore();
 const customers = computed(() => customerStore.items);
+const payments = computed(() => paymentStore.items);
 
-// The store is empty when landing here directly; load it once.
 onMounted(async () => {
+  // Payments are always reloaded: they change whenever a customer's paid amount does.
+  const loadPayments = paymentStore
+    .fetchAll()
+    .catch((e) => console.error("[reports] payments load failed", e));
+
+  // The customer store is empty when landing here directly; load it once.
   if (!customerStore.items.length) {
     try {
       await customerStore.fetchAll();
@@ -85,7 +94,18 @@ onMounted(async () => {
       console.error("[reports] load failed", e);
     }
   }
+  await loadPayments;
 });
+
+// The month whose payments are open in the dialog. Held as a key and looked up
+// again, so the dialog follows the data if it is reloaded while open.
+const selectedKey = ref<string | null>(null);
+const selectedMonth = computed(
+  () => monthlyEarnings(payments.value).find((m) => m.key === selectedKey.value) ?? null,
+);
+const openMonth = (month: MonthEarnings) => {
+  selectedKey.value = month.key;
+};
 
 const generatedOn = computed(() =>
   new Intl.DateTimeFormat(locale.value === "ar" ? "ar-EG-u-nu-latn" : "en-US", {
@@ -100,7 +120,7 @@ const { add: addToast } = useToast();
 const exportPdf = async () => {
   const day = new Date().toISOString().slice(0, 10);
   try {
-    await exportReport(customers.value, `customers-report-${day}.pdf`);
+    await exportReport(customers.value, payments.value, `customers-report-${day}.pdf`);
   } catch (e) {
     console.error("[reports] pdf export failed", e);
     addToast({ type: "error", message: t("report_export_failed") });
