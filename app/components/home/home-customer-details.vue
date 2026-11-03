@@ -18,11 +18,17 @@
           <div class="flex items-center gap-4">
             <div
               :class="[
-                'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-lg font-extrabold shadow-sm',
+                'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-lg font-extrabold shadow-sm',
                 customer.avatarClass,
               ]"
             >
-              {{ customer.initials }}
+              <img
+                v-if="customer.imageUrl"
+                :src="customer.imageUrl"
+                :alt="customer.name"
+                class="h-full w-full object-cover"
+              />
+              <template v-else>{{ customer.initials }}</template>
             </div>
             <div class="min-w-0">
               <h3

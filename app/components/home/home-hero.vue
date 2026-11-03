@@ -38,9 +38,7 @@
 
     <div class="relative flex flex-wrap items-center gap-3">
       <!-- Add Customer button -->
-      <LazyVButton @click="emit('add')">
-        Add Customer
-      </LazyVButton>
+      <LazyVButton @click="emit('add')"> Add Customer </LazyVButton>
     </div>
   </section>
 </template>

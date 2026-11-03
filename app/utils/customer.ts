@@ -27,6 +27,37 @@ export function avatarClassFor(id: string): string {
   return AVATAR_CLASSES[hash % AVATAR_CLASSES.length]!;
 }
 
+export const CUSTOMER_IMAGE_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const IMAGE_EXT_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+export const CUSTOMER_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+
+// Some browsers report an empty file.type: fall back to the extension.
+export function resolveImageType(file: File): string {
+  return (
+    file.type ||
+    IMAGE_EXT_TYPES[file.name.split(".").pop()?.toLowerCase() ?? ""] ||
+    ""
+  );
+}
+
+/** Returns an error message, or null when the file is acceptable. */
+export function validateCustomerImage(file: File): string | null {
+  if (!CUSTOMER_IMAGE_TYPES[resolveImageType(file)]) {
+    return "Please choose a JPG, PNG or WebP image";
+  }
+  if (file.size > CUSTOMER_IMAGE_MAX_BYTES) return "Image must be 2 MB or less";
+  return null;
+}
+
 export function toCustomer(row: CustomerRow): Customer {
   return {
     id: row.id,
@@ -37,6 +68,7 @@ export function toCustomer(row: CustomerRow): Customer {
     phone: row.phone,
     email: row.email,
     avatarClass: avatarClassFor(row.id),
+    imageUrl: row.image_url,
     amountDue: Number(row.amount_due),
     amountPaid: Number(row.amount_paid),
   };

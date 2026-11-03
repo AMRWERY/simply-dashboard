@@ -19,6 +19,7 @@ export type Database = {
           phone: string;
           email: string | null;
           city: string | null;
+          image_url: string | null;
           status: "active" | "new" | "follow-up";
           amount_due: number;
           amount_paid: number;
@@ -32,6 +33,7 @@ export type Database = {
           phone: string;
           email?: string | null;
           city?: string | null;
+          image_url?: string | null;
           status?: "active" | "new" | "follow-up";
           amount_due?: number;
           amount_paid?: number;
@@ -45,6 +47,7 @@ export type Database = {
           phone?: string;
           email?: string | null;
           city?: string | null;
+          image_url?: string | null;
           status?: "active" | "new" | "follow-up";
           amount_due?: number;
           amount_paid?: number;

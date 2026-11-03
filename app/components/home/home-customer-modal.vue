@@ -27,6 +27,45 @@
             <div
               class="-mx-1 min-h-0 flex-1 space-y-2.5 overflow-y-auto px-1 pb-1"
             >
+              <!-- Photo -->
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-xs font-bold text-gray-400 dark:bg-gray-800"
+                >
+                  <img
+                    v-if="previewUrl"
+                    :src="previewUrl"
+                    alt="Customer photo preview"
+                    class="h-full w-full object-cover"
+                  />
+                  <span v-else>No photo</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <input
+                    ref="fileInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    class="hidden"
+                    @change="onFileChange"
+                  />
+                  <LazyVButton
+                    variant="soft"
+                    size="sm"
+                    @click="fileInput?.click()"
+                  >
+                    {{ previewUrl ? "Change photo" : "Upload photo" }}
+                  </LazyVButton>
+                  <LazyVButton
+                    v-if="previewUrl"
+                    variant="danger-soft"
+                    size="sm"
+                    @click="clearImage"
+                  >
+                    Remove
+                  </LazyVButton>
+                </div>
+              </div>
+
               <!-- Customer Name -->
               <LazyVInput
                 v-model="form.name"
@@ -154,6 +193,56 @@ const emptyForm = () => ({
 
 const form = ref(emptyForm());
 
+const { add: addToast } = useToast();
+const fileInput = ref<HTMLInputElement | null>(null);
+const imageFile = ref<File | null>(null);
+const removeImage = ref(false);
+const objectUrl = ref<string | null>(null);
+
+const revokeObjectUrl = () => {
+  if (objectUrl.value) URL.revokeObjectURL(objectUrl.value);
+  objectUrl.value = null;
+};
+
+// New file preview wins; otherwise the saved photo unless it was removed.
+const previewUrl = computed(
+  () =>
+    objectUrl.value ??
+    (removeImage.value ? null : (props.editingCustomer?.imageUrl ?? null)),
+);
+
+const resetImage = () => {
+  revokeObjectUrl();
+  imageFile.value = null;
+  removeImage.value = false;
+  if (fileInput.value) fileInput.value.value = "";
+};
+
+const onFileChange = (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  const problem = validateCustomerImage(file);
+  if (problem) {
+    addToast({ type: "error", message: problem });
+    input.value = "";
+    return;
+  }
+  revokeObjectUrl();
+  imageFile.value = file;
+  objectUrl.value = URL.createObjectURL(file);
+  removeImage.value = false;
+};
+
+const clearImage = () => {
+  revokeObjectUrl();
+  imageFile.value = null;
+  removeImage.value = true;
+  if (fileInput.value) fileInput.value.value = "";
+};
+
+onBeforeUnmount(revokeObjectUrl);
+
 const toAmount = (v: unknown): number =>
   v === "" || v == null ? 0 : Number(v);
 
@@ -178,6 +267,7 @@ const validatePaid = (v: unknown): boolean | string => {
 watch(
   () => props.editingCustomer,
   (customer) => {
+    resetImage();
     if (customer) {
       form.value = {
         name: customer.name,
@@ -198,6 +288,7 @@ watch(
 watch(
   () => props.isOpen,
   (open) => {
+    if (open) resetImage();
     if (open && !props.editingCustomer) {
       form.value = emptyForm();
     }
@@ -210,6 +301,8 @@ const handleSubmit = () => {
     ...rest,
     amountDue: toAmount(amountDue),
     amountPaid: toAmount(amountPaid),
+    imageFile: imageFile.value,
+    removeImage: removeImage.value,
   });
 };
 </script>
