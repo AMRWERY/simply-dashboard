@@ -79,6 +79,17 @@ export function remainingAmount(customer: Pick<Customer, "amountDue" | "amountPa
   return Math.max(0, Math.round((customer.amountDue - customer.amountPaid) * 100) / 100);
 }
 
+/** Totals across customers: billed, collected (earnings) and still owed. */
+export function summarizeEarnings(customers: Customer[]) {
+  const round = (n: number) => Math.round(n * 100) / 100;
+  const billed = round(customers.reduce((s, c) => s + c.amountDue, 0));
+  const earned = round(customers.reduce((s, c) => s + c.amountPaid, 0));
+  const outstanding = round(
+    customers.reduce((s, c) => s + remainingAmount(c), 0),
+  );
+  return { billed, earned, outstanding };
+}
+
 /** Format an amount in EGP. Western digits in both languages. */
 export function formatMoney(amount: number, locale: string): string {
   return new Intl.NumberFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-EG", {

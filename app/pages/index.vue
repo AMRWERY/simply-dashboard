@@ -6,6 +6,9 @@
       @add="openCreateModal"
     />
 
+    <!-- Earnings summary (all customers, not affected by filters) -->
+    <lazy-home-earnings v-if="!isLoading" :customers="customers" />
+
     <!-- Toolbar: Search & Filters -->
     <lazy-home-toolbar
       v-model:search-query="searchQuery"

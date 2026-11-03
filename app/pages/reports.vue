@@ -40,8 +40,12 @@
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Total Revenue</p>
-        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">$48,250</p>
-        <p class="mt-2 text-xs font-semibold text-emerald-600">+12% from last month</p>
+        <p dir="ltr" class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+          {{ formatMoney(totals.earned, locale) }}
+        </p>
+        <p class="mt-2 text-xs font-semibold text-amber-600">
+          {{ formatMoney(totals.outstanding, locale) }} outstanding
+        </p>
       </div>
       <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Active Customers</p>
@@ -58,6 +62,21 @@
 </template>
 
 <script lang="ts" setup>
+const customerStore = useCustomerStore();
+const { locale } = useI18n();
+const totals = computed(() => summarizeEarnings(customerStore.items));
+
+// The store is empty when landing here directly; load it once.
+onMounted(async () => {
+  if (!customerStore.items.length) {
+    try {
+      await customerStore.fetchAll();
+    } catch (e) {
+      console.error("[reports] load failed", e);
+    }
+  }
+});
+
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
