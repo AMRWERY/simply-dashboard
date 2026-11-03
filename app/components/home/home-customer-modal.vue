@@ -22,7 +22,9 @@
 
           <!-- Form using VInput and VSelectInput (1 input per row, compact height) -->
           <Form
+            autocomplete="off"
             @submit="handleSubmit"
+            @invalid-submit="focusFirstError"
             class="mt-3.5 flex min-h-0 flex-1 flex-col"
           >
             <!-- Scrollable fields -->
@@ -84,7 +86,8 @@
               <!-- Customer Name -->
               <LazyVInput
                 v-model="form.name"
-                name="name"
+                name="customer_name"
+                autocomplete="off"
                 :label="t('customer_name')"
                 :placeholder="t('customer_name_placeholder')"
                 rules="required"
@@ -94,7 +97,8 @@
               <!-- Email -->
               <LazyVInput
                 v-model="form.email"
-                name="email"
+                name="customer_email"
+                autocomplete="off"
                 :label="t('email')"
                 type="email"
                 placeholder="example@example.com"
@@ -106,10 +110,12 @@
               <!-- Phone -->
               <LazyVInput
                 v-model="form.phone"
-                name="phone"
+                name="customer_phone"
+                autocomplete="off"
+                inputmode="tel"
                 :label="t('phone')"
                 type="tel"
-                placeholder="+20 102 000 0000"
+                placeholder="010 0000 0000"
                 rules="required"
                 dir="ltr"
                 compact
@@ -118,6 +124,7 @@
               <!-- City -->
               <LazyVInput
                 v-model="form.city"
+                autocomplete="off"
                 :label="t('city')"
                 :placeholder="t('city_placeholder')"
                 compact
@@ -301,7 +308,7 @@ watch(
         phone: customer.phone,
         city: customer.city ?? "",
         status: customer.status,
-        amountDue: customer.amountDue ? String(customer.amountDue) : "",
+        amountDue: String(customer.amountDue ?? 0),
         amountPaid: customer.amountPaid ? String(customer.amountPaid) : "",
       };
     } else {
@@ -320,6 +327,14 @@ watch(
     }
   },
 );
+
+// The fields scroll inside the modal, so an error can be out of sight.
+const focusFirstError = async () => {
+  await nextTick();
+  const el = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+  el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  el?.focus({ preventScroll: true });
+};
 
 const handleSubmit = () => {
   const { amountDue, amountPaid, ...rest } = form.value;
