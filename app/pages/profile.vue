@@ -61,9 +61,30 @@
       </div>
 
       <div class="relative min-w-0">
-        <h1 class="truncate text-2xl font-extrabold capitalize sm:text-3xl">
-          {{ userName }}
-        </h1>
+        <div class="flex items-center justify-center gap-2 sm:justify-start">
+          <h1 class="truncate text-2xl font-extrabold capitalize sm:text-3xl">
+            {{ userName }}
+          </h1>
+          <!-- Blue tick next to the name when the email is verified -->
+          <span
+            v-if="details?.verified"
+            :title="t('verified')"
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white shadow-md shadow-sky-500/40"
+          >
+            <svg
+              class="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m5 13 4 4L19 7" />
+            </svg>
+          </span>
+        </div>
         <p
           dir="ltr"
           class="mt-1 truncate text-sm text-indigo-200/80 sm:text-start"
@@ -76,12 +97,32 @@
           <span
             v-if="details"
             :class="[
-              'rounded-full px-3 py-1 text-xs font-bold',
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
               details.verified
                 ? 'bg-emerald-400/20 text-emerald-300'
                 : 'bg-amber-400/20 text-amber-300',
             ]"
           >
+            <!-- Shield with a tick when verified, an alert circle otherwise -->
+            <svg
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <template v-if="details.verified">
+                <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
+                <path d="m9 12 2 2 4-4" />
+              </template>
+              <template v-else>
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v4M12 16h.01" />
+              </template>
+            </svg>
             {{ details.verified ? t("verified") : t("not_verified") }}
           </span>
           <span
@@ -122,6 +163,7 @@
               <span
                 dir="auto"
                 class="truncate font-medium text-gray-500 select-all dark:text-gray-400"
+                :class="{ capitalize: row.capitalize }"
                 >{{ row.value }}</span
               >
             </dd>
@@ -214,7 +256,7 @@ const formatDate = (iso: string | null, style: "date" | "datetime") => {
 };
 
 const rows = computed(() => [
-  { label: t("full_name"), value: auth.user?.name || "—" },
+  { label: t("full_name"), value: auth.user?.name || "—", capitalize: true },
   { label: t("email"), value: auth.user?.email || "—" },
   {
     label: t("email_status"),
