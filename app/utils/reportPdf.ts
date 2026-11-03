@@ -203,14 +203,8 @@ export const buildReportPdf = async ({
   table(
     [t("metric"), t("value")],
     [
-      [t("total_billed"), money(totals.billed)],
       [t("total_earnings"), money(totals.earned)],
       [t("outstanding"), money(totals.outstanding)],
-      [
-        t("collection_rate"),
-        `${collectionRate(totals.billed, totals.earned)}%`,
-      ],
-      [t("average_per_customer"), money(avg)],
     ],
     [1],
   );

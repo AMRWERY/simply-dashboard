@@ -1,5 +1,5 @@
 <template>
-  <section class="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+  <section class="grid grid-cols-2 gap-4 lg:grid-cols-2">
     <div
       v-for="(tile, i) in tiles"
       :key="tile.label"
@@ -65,14 +65,6 @@ const averageShown = useCountUp(average);
 
 const tiles = computed(() => [
   {
-    label: t("total_billed"),
-    text: money(billed.value),
-    valueClass: "text-gray-900 dark:text-white",
-    iconClass:
-      "bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400",
-    icon: "M9 12h6M9 16h6M9 8h6M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z",
-  },
-  {
     label: t("total_earnings"),
     text: money(earned.value),
     valueClass: "text-emerald-600 dark:text-emerald-400",
@@ -87,22 +79,6 @@ const tiles = computed(() => [
     iconClass:
       "bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400",
     icon: "M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-  },
-  {
-    label: t("collection_rate"),
-    text: `${Math.round(rateShown.value)}%`,
-    valueClass: "text-sky-600 dark:text-sky-400",
-    iconClass:
-      "bg-sky-100 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400",
-    icon: "M19 5L5 19M7.5 6.5a1 1 0 11-2 0 1 1 0 012 0zM18.5 17.5a1 1 0 11-2 0 1 1 0 012 0z",
-  },
-  {
-    label: t("average_per_customer"),
-    text: money(averageShown.value),
-    valueClass: "text-violet-600 dark:text-violet-400",
-    iconClass:
-      "bg-violet-100 text-violet-600 dark:bg-violet-950/60 dark:text-violet-400",
-    icon: "M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8",
   },
 ]);
 </script>

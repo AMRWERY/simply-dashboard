@@ -251,7 +251,7 @@
 const { locale, t } = useI18n();
 const auth = useAuthStore();
 const customerStore = useCustomerStore();
-const api = useRequestFetch();
+const api = useApi();
 const localePath = useLocalePath();
 const { add: addToast } = useToast();
 

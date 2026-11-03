@@ -165,7 +165,7 @@
               />
 
               <!-- Schedule: any number of dates and times, each markable as done -->
-              <lazy-home-schedule-editor v-model="scheduleDrafts" />
+              <lazy-home-schedule-editor :key="editorKey" v-model="scheduleDrafts" />
             </div>
 
             <!-- Actions (always visible) -->
@@ -226,6 +226,8 @@ const emptyForm = () => ({
 
 const form = ref(emptyForm());
 const scheduleDrafts = ref<ScheduleDraft[]>([]);
+// Bumped whenever the rows are replaced, so the calendar reopens on the right month.
+const editorKey = ref(0);
 
 onKeyStroke("Escape", () => {
   if (props.isOpen && !props.saving) emit("close");
@@ -333,6 +335,7 @@ watch(
       form.value = emptyForm();
       scheduleDrafts.value = [];
     }
+    editorKey.value++;
   },
   { immediate: true },
 );
@@ -345,6 +348,7 @@ watch(
       form.value = emptyForm();
       scheduleDrafts.value = [];
     }
+    if (open) editorKey.value++;
   },
 );
 

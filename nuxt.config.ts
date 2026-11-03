@@ -57,6 +57,17 @@ export default defineNuxtConfig({
       secure: !import.meta.dev,
     },
   },
+  hooks: {
+    // The Supabase module's browser plugin re-checks the user against
+    // supabase.co on every page change, and signs the user out of the UI when
+    // that request fails (an extension, a firewall, a flaky network). All
+    // Supabase calls run on our server (server/api), so the browser needs no
+    // Supabase client at all: drop that plugin. The server plugin stays; it
+    // reads the session cookie on each page load and fills in the user.
+    "app:resolve": (app) => {
+      app.plugins = app.plugins.filter((p) => !/supabase.client/.test(p.src));
+    },
+  },
   css: ["~/assets/css/main.css"],
   components: [
     {

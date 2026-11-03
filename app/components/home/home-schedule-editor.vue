@@ -1,59 +1,53 @@
 <template>
   <div>
-    <div class="mb-1.5 flex items-center justify-between gap-2">
-      <span class="text-sm font-bold text-gray-800 dark:text-gray-200">
-        {{ t("schedule") }}
-      </span>
-      <button
-        type="button"
-        class="flex items-center gap-1 rounded-xl bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
-        @click="addRow"
-      >
-        <LazyVIcon name="plus-icon" alt="" class="h-3.5 w-3.5" />
-        {{ t("add_date_time") }}
-      </button>
+    <div class="mb-1 text-sm font-bold text-gray-800 dark:text-gray-200">
+      {{ t("schedule") }}
     </div>
-
-    <p
-      v-if="!modelValue.length"
-      class="rounded-2xl border border-dashed border-gray-200 px-3 py-4 text-center text-xs text-gray-400 dark:border-gray-700 dark:text-gray-500"
-    >
-      {{ t("schedule_empty_hint") }}
+    <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">
+      {{ t("schedule_pick_dates") }}
     </p>
 
-    <TransitionGroup v-else name="row" tag="ul" class="space-y-2">
+    <!-- Pick any number of dates -->
+    <VDatePicker :model-value="dates" multiple @update:model-value="selectDates" />
+
+    <!-- One row per picked date, each with its own time -->
+    <TransitionGroup v-if="modelValue.length" name="row" tag="ul" class="mt-3 space-y-2">
       <li
         v-for="row in modelValue"
         :key="row.key"
         class="rounded-2xl border border-gray-100 p-2 dark:border-gray-800"
       >
-        <div class="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
-          <input
-            type="date"
-            dir="ltr"
-            :value="row.date"
-            :aria-label="t('schedule_date')"
-            :class="inputClass"
-            @input="patch(row.key, { date: ($event.target as HTMLInputElement).value })"
-          />
-          <input
-            type="time"
-            dir="ltr"
-            :value="row.time"
-            :aria-label="t('schedule_time')"
-            :class="inputClass"
-            @input="patch(row.key, { time: ($event.target as HTMLInputElement).value })"
-          />
-          <button
-            type="button"
-            :aria-label="t('remove_date_time')"
-            :title="t('remove_date_time')"
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-            @click="remove(row.key)"
-          >
-            <LazyVIcon name="close-icon" alt="" class="h-3.5 w-3.5" />
-          </button>
+        <div class="mb-2 flex items-center justify-between gap-2 px-1">
+          <span dir="auto" class="truncate text-xs font-extrabold text-gray-800 dark:text-gray-100">
+            {{ dateLabel(row.date) }}
+          </span>
+          <div class="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              :aria-label="t('add_time_same_date')"
+              :title="t('add_time_same_date')"
+              class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 transition-all duration-200 hover:scale-110 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+              @click="emit('update:modelValue', addTimeOnSameDate(modelValue, row.key))"
+            >
+              <LazyVIcon name="plus-icon" alt="" class="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              :aria-label="t('remove_date_time')"
+              :title="t('remove_date_time')"
+              class="flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+              @click="remove(row.key)"
+            >
+              <LazyVIcon name="close-icon" alt="" class="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
+
+        <VTimePicker
+          :model-value="row.time"
+          :label="t('schedule_time')"
+          @update:model-value="patch(row.key, { time: $event })"
+        />
 
         <!-- Done toggle + live status -->
         <div class="mt-2 flex items-center justify-between gap-2 px-1">
@@ -87,12 +81,13 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: ScheduleDraft[]): void;
 }>();
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 
-const inputClass =
-  "w-full rounded-2xl border border-transparent bg-indigo-50/60 px-3 py-2 text-xs text-gray-800 outline-none transition hover:border-indigo-200 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 dark:bg-white/5 dark:text-white dark:hover:border-indigo-500/40 dark:focus:bg-white/10 dark:focus:ring-indigo-500/20";
+// The calendar's selection is derived from the rows, so they can't drift apart.
+const dates = computed(() => draftDates(props.modelValue));
 
-const addRow = () => emit("update:modelValue", [...props.modelValue, newDraft()]);
+const selectDates = (next: string[]) =>
+  emit("update:modelValue", applyDateSelection(props.modelValue, next));
 
 const remove = (key: string) =>
   emit(
@@ -105,6 +100,14 @@ const patch = (key: string, change: Partial<ScheduleDraft>) =>
     "update:modelValue",
     props.modelValue.map((row) => (row.key === key ? { ...row, ...change } : row)),
   );
+
+const dateLabel = (date: string) =>
+  new Intl.DateTimeFormat(locale.value === "ar" ? "ar-EG-u-nu-latn" : "en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00`));
 
 // Same three states as everywhere else: done, overdue (past, not done), upcoming.
 const badge = (row: ScheduleDraft) => {
@@ -142,6 +145,6 @@ const badge = (row: ScheduleDraft) => {
 }
 .row-leave-to {
   opacity: 0;
-  transform: translateX(12px);
+  transform: translateY(8px);
 }
 </style>

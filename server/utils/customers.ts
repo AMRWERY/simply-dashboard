@@ -1,3 +1,7 @@
+// The phone rule lives in app/utils so the form and the server share one definition.
+// Nitro only auto-imports server/utils (not app/utils), so import it explicitly.
+import { isValidPhone, normalizePhone } from "../../app/utils/phone";
+
 const STATUSES = ["active", "new", "follow-up"] as const;
 type Status = (typeof STATUSES)[number];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

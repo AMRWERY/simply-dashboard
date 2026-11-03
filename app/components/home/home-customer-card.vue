@@ -140,51 +140,136 @@
         </p>
       </div>
 
-      <!-- Schedule: the next date that still needs attention -->
+      <!-- Schedule: how many dates, how many are done, and any of them can be ticked off -->
       <div
-        v-if="customer.schedules.length"
-        :class="[
-          'mt-4 flex items-center gap-2.5 rounded-2xl p-3 text-xs transition-colors duration-300',
-          tone.box,
-        ]"
+        v-if="total"
+        :class="['mt-4 rounded-2xl text-xs transition-colors duration-300', tone.box]"
       >
-        <span
-          :class="['flex h-8 w-8 shrink-0 items-center justify-center rounded-xl', tone.icon]"
-        >
-          <svg
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path v-if="next" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
-            <path v-else d="m5 13 4 4L19 7" />
-          </svg>
-        </span>
-        <div class="min-w-0 flex-1">
-          <p class="flex flex-wrap items-center gap-x-2 font-bold">
-            <span>{{ next ? t(status) : t("all_done") }}</span>
-            <span v-if="openLeft > 1" class="font-semibold opacity-70">
-              {{ t("more_dates", { count: openLeft - 1 }) }}
+        <div class="p-3">
+          <!-- Row 1: what it is, how many, and the expand toggle -->
+          <div class="flex items-center gap-2.5">
+            <span
+              :class="['flex h-8 w-8 shrink-0 items-center justify-center rounded-xl', tone.icon]"
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path v-if="next" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                <path v-else d="m5 13 4 4L19 7" />
+              </svg>
             </span>
-          </p>
-          <p v-if="next" dir="auto" class="mt-0.5 truncate font-medium opacity-80">
-            {{ formatSchedule(next.at, locale) }}
-          </p>
+
+            <p class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 gap-y-1 font-bold">
+              <span>{{ t("schedule") }}</span>
+              <span class="rounded-full bg-white/70 px-2 py-0.5 font-extrabold dark:bg-white/10">
+                {{ t("schedule_progress", { done: doneCount, total }) }}
+              </span>
+              <span
+                v-if="overdueCount"
+                class="rounded-full bg-red-600 px-2 py-0.5 font-extrabold text-white"
+              >
+                {{ t("overdue_count", { count: overdueCount }) }}
+              </span>
+            </p>
+
+            <button
+              type="button"
+              data-schedule-toggle
+              :aria-expanded="expanded"
+              :aria-label="expanded ? t('hide_all_dates') : t('show_all_dates')"
+              :title="expanded ? t('hide_all_dates') : t('show_all_dates')"
+              class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 hover:bg-white/70 active:scale-90 dark:hover:bg-white/10"
+              @click="expanded = !expanded"
+            >
+              <svg
+                class="h-4 w-4 transition-transform duration-300"
+                :class="expanded ? 'rotate-180' : ''"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Row 2: the next date in full, with its quick action -->
+          <div class="mt-2 flex items-center justify-between gap-2">
+            <p v-if="next" dir="auto" class="min-w-0 flex-1 truncate font-medium opacity-80">
+              {{ t("next") }} · {{ formatSchedule(next.at, locale) }}
+            </p>
+            <p v-else class="font-medium opacity-80">{{ t("all_done") }}</p>
+
+            <button
+              v-if="next"
+              type="button"
+              class="shrink-0 cursor-pointer rounded-xl px-2.5 py-1.5 font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
+              :class="tone.button"
+              @click="emit('schedule', next.id, true)"
+            >
+              {{ t("mark_done") }}
+            </button>
+          </div>
         </div>
-        <button
-          v-if="next"
-          type="button"
-          class="shrink-0 cursor-pointer rounded-xl px-2.5 py-1.5 font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
-          :class="tone.button"
-          @click="emit('schedule', next.id, true)"
+
+        <!-- Every date: the grid-rows trick animates the height open and shut -->
+        <div
+          class="grid transition-[grid-template-rows] duration-300 ease-out"
+          :class="expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
         >
-          {{ t("mark_done") }}
-        </button>
+          <div class="overflow-hidden">
+            <ul class="space-y-1.5 px-3 pb-3" :inert="!expanded">
+              <li
+                v-for="entry in customer.schedules"
+                :key="entry.id"
+                class="flex items-center justify-between gap-2 rounded-xl bg-white/70 px-2.5 py-2 dark:bg-white/5"
+              >
+                <div class="min-w-0">
+                  <p
+                    dir="auto"
+                    :class="[
+                      'truncate font-bold',
+                      entry.done ? 'text-gray-400 line-through dark:text-gray-500' : '',
+                    ]"
+                  >
+                    {{ formatSchedule(entry.at, locale) }}
+                  </p>
+                  <span
+                    :class="[
+                      'mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold',
+                      PILLS[scheduleStatus(entry, now)],
+                    ]"
+                  >
+                    {{ t(scheduleStatus(entry, now)) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  :class="[
+                    'shrink-0 cursor-pointer rounded-xl px-2.5 py-1.5 font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95',
+                    entry.done
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-emerald-600 text-white hover:bg-emerald-700',
+                  ]"
+                  @click="emit('schedule', entry.id, !entry.done)"
+                >
+                  {{ entry.done ? t("undo") : t("mark_done") }}
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -237,7 +322,21 @@ const remaining = computed(() => remainingAmount(props.customer));
 // Re-evaluated every 30s so an entry turns "overdue" without a refresh.
 const now = useNowEvery(30_000);
 const next = computed(() => nextOpenEntry(props.customer.schedules));
-const openLeft = computed(() => openCount(props.customer.schedules));
+const total = computed(() => props.customer.schedules.length);
+const doneCount = computed(() => total.value - openCount(props.customer.schedules));
+const overdueCount = computed(
+  () =>
+    props.customer.schedules.filter((e) => scheduleStatus(e, now.value) === "overdue")
+      .length,
+);
+// Whether the full list of dates is open (collapsed by default to keep cards compact).
+const expanded = ref(false);
+
+const PILLS = {
+  done: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+  overdue: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300",
+  upcoming: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300",
+};
 const status = computed(() => (next.value ? scheduleStatus(next.value, now.value) : "done"));
 
 const TONES = {

@@ -20,13 +20,6 @@ export const fromLocalParts = (date: string, time: string): string | null => {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 };
 
-/** A sensible starting point for a new entry: today, at the next full hour. */
-export const defaultParts = (now = new Date()) => {
-  const d = new Date(now);
-  d.setHours(d.getHours() + 1, 0, 0, 0);
-  return toLocalParts(d.toISOString());
-};
-
 /** Done wins; otherwise a past time that isn't done yet is overdue. */
 export const scheduleStatus = (
   entry: Pick<ScheduleEntry, "at" | "done">,
@@ -61,12 +54,57 @@ export const formatSchedule = (iso: string, locale: string): string => {
 
 let draftCounter = 0;
 
-/** A blank row for the form, pre-filled with a sensible date and time. */
-export const newDraft = (): ScheduleDraft => ({
-  key: `draft-${++draftCounter}`,
-  ...defaultParts(),
-  done: false,
-});
+/** Time given to a newly picked date (the last row's time when there is one). */
+export const DEFAULT_TIME = "09:00";
+
+/** The distinct dates the rows cover, earliest first (what the calendar shows as selected). */
+export const draftDates = (drafts: ScheduleDraft[]): string[] =>
+  [...new Set(drafts.map((d) => d.date))].sort();
+
+/**
+ * Makes the rows match the dates chosen on the calendar: rows for dates that
+ * were deselected are dropped, and each newly picked date gets a row. Rows that
+ * stay keep their time and done state; the result is ordered by date.
+ */
+export const applyDateSelection = (
+  drafts: ScheduleDraft[],
+  dates: string[],
+): ScheduleDraft[] => {
+  const wanted = new Set(dates);
+  const kept = drafts.filter((d) => wanted.has(d.date));
+  const have = new Set(kept.map((d) => d.date));
+  const time = drafts.at(-1)?.time ?? DEFAULT_TIME;
+  const added = dates
+    .filter((date) => !have.has(date))
+    .map(
+      (date): ScheduleDraft => ({
+        key: `draft-${++draftCounter}`,
+        date,
+        time,
+        done: false,
+      }),
+    );
+  // Array.sort is stable, so rows on the same date keep the order they had.
+  return [...kept, ...added].sort((a, b) => a.date.localeCompare(b.date));
+};
+
+/** Adds a second row on the same date as `key`, an hour later (a day can have several times). */
+export const addTimeOnSameDate = (
+  drafts: ScheduleDraft[],
+  key: string,
+): ScheduleDraft[] => {
+  const index = drafts.findIndex((d) => d.key === key);
+  const source = drafts[index];
+  if (!source) return drafts;
+  const [h = 9, m = 0] = source.time.split(":").map(Number);
+  const copy: ScheduleDraft = {
+    key: `draft-${++draftCounter}`,
+    date: source.date,
+    time: `${pad(Math.min(23, h + 1))}:${pad(m)}`,
+    done: false,
+  };
+  return [...drafts.slice(0, index + 1), copy, ...drafts.slice(index + 1)];
+};
 
 /** Existing schedule entries -> editable rows. */
 export const draftsFromEntries = (entries: ScheduleEntry[]): ScheduleDraft[] =>

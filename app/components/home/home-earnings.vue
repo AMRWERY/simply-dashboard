@@ -1,5 +1,5 @@
 <template>
-  <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div
       v-for="(tile, i) in tiles"
       :key="tile.label"
@@ -73,14 +73,6 @@ const tiles = computed(() => [
     iconClass:
       "bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400",
     icon: "M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-  },
-  {
-    label: t("total_billed"),
-    shown: billed.value,
-    valueClass: "text-gray-900 dark:text-white",
-    iconClass:
-      "bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400",
-    icon: "M9 12h6M9 16h6M9 8h6M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z",
   },
 ]);
 </script>

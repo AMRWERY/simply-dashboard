@@ -206,11 +206,12 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
-const userName = computed(() => auth.user?.name || "Ahmed Al-Ashraf");
-const userEmail = computed(() => auth.user?.email || "ahmed@crm.sa");
+const userName = computed(() => auth.user?.name);
+const userEmail = computed(() => auth.user?.email);
 
 const userInitials = computed(() => {
-  const name = userName.value.trim();
+  // There is no signed-in user while logging out or after the session ends.
+  const name = (userName.value ?? "").trim();
   if (!name) return "AA";
   const parts = name.split(/\s+/);
   if (parts.length >= 2 && parts[0] && parts[1]) {

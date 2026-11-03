@@ -8,7 +8,7 @@ import type { Customer, CustomerInput } from "~/types/home";
  */
 export const useCustomerStore = defineStore("customers", () => {
   const items = ref<Customer[]>([]);
-  const api = useRequestFetch();
+  const api = useApi();
 
   const toFormData = (input: CustomerInput) => {
     const form = new FormData();

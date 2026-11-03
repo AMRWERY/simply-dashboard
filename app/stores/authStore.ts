@@ -31,8 +31,9 @@ const resolveAvatarType = (file: File): string => {
  */
 export const useAuthStore = defineStore("auth", () => {
   const supabaseUser = useSupabaseUser();
-  // Forwards the visitor's cookies during SSR so server routes see the session.
-  const api = useRequestFetch();
+  // Forwards the visitor's cookies during SSR so server routes see the session,
+  // and signs the UI out if the server says the session is gone (401).
+  const api = useApi();
 
   const avatarUrl = useState<string | null>("avatar_url", () => null);
 
