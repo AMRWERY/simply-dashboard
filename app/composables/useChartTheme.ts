@@ -18,7 +18,7 @@ if (import.meta.client) {
 }
 
 /** Colours and shared options that follow dark mode and the active language. */
-export function useChartTheme() {
+export const useChartTheme = () => {
   const { isDark } = useTheme();
   const { locale } = useI18n();
 
@@ -49,4 +49,4 @@ export function useChartTheme() {
   }));
 
   return { isRtl, colors, tooltip };
-}
+};

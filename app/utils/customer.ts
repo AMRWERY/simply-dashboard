@@ -12,20 +12,20 @@ const AVATAR_CLASSES = [
   "bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400",
 ];
 
-export function getInitials(name: string): string {
+export const getInitials = (name: string): string => {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2 && parts[0] && parts[1]) {
     return (parts[0][0]! + parts[1][0]!).toUpperCase();
   }
   return name.trim().slice(0, 2).toUpperCase();
-}
+};
 
 /** Same id -> same colour, so the avatar doesn't change between reloads. */
-export function avatarClassFor(id: string): string {
+export const avatarClassFor = (id: string): string => {
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   return AVATAR_CLASSES[hash % AVATAR_CLASSES.length]!;
-}
+};
 
 export const CUSTOMER_IMAGE_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -41,24 +41,24 @@ const IMAGE_EXT_TYPES: Record<string, string> = {
 export const CUSTOMER_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
 // Some browsers report an empty file.type: fall back to the extension.
-export function resolveImageType(file: File): string {
+export const resolveImageType = (file: File): string => {
   return (
     file.type ||
     IMAGE_EXT_TYPES[file.name.split(".").pop()?.toLowerCase() ?? ""] ||
     ""
   );
-}
+};
 
 /** Returns an i18n key for the problem, or null when the file is acceptable. */
-export function validateCustomerImage(
+export const validateCustomerImage = (
   file: File,
-): "invalid_image_type" | "image_too_large" | null {
+): "invalid_image_type" | "image_too_large" | null => {
   if (!CUSTOMER_IMAGE_TYPES[resolveImageType(file)]) return "invalid_image_type";
   if (file.size > CUSTOMER_IMAGE_MAX_BYTES) return "image_too_large";
   return null;
-}
+};
 
-export function toCustomer(row: CustomerRow): Customer {
+export const toCustomer = (row: CustomerRow): Customer => {
   return {
     id: row.id,
     name: row.name,
@@ -73,15 +73,15 @@ export function toCustomer(row: CustomerRow): Customer {
     amountDue: Number(row.amount_due),
     amountPaid: Number(row.amount_paid),
   };
-}
+};
 
 /** Money owed but not yet paid, never negative, rounded to cents. */
-export function remainingAmount(customer: Pick<Customer, "amountDue" | "amountPaid">): number {
+export const remainingAmount = (customer: Pick<Customer, "amountDue" | "amountPaid">): number => {
   return Math.max(0, Math.round((customer.amountDue - customer.amountPaid) * 100) / 100);
-}
+};
 
 /** Totals across customers: billed, collected (earnings) and still owed. */
-export function summarizeEarnings(customers: Customer[]) {
+export const summarizeEarnings = (customers: Customer[]) => {
   const round = (n: number) => Math.round(n * 100) / 100;
   const billed = round(customers.reduce((s, c) => s + c.amountDue, 0));
   const earned = round(customers.reduce((s, c) => s + c.amountPaid, 0));
@@ -89,14 +89,14 @@ export function summarizeEarnings(customers: Customer[]) {
     customers.reduce((s, c) => s + remainingAmount(c), 0),
   );
   return { billed, earned, outstanding };
-}
+};
 
 /** Format an amount in EGP. Western digits in both languages. */
-export function formatMoney(amount: number, locale: string): string {
+export const formatMoney = (amount: number, locale: string): string => {
   return new Intl.NumberFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-EG", {
     style: "currency",
     currency: "EGP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount);
-}
+};

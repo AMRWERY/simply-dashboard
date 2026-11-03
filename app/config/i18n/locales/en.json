@@ -63,7 +63,6 @@
   "total_billed": "Total billed",
   "no_customers_found": "No customers found",
   "no_customers_found_description": "Try adjusting your search query or switching filters.",
-  "reset_filters": "Reset filters",
   "add_new_customer": "Add New Customer",
   "update_customer": "Update Customer",
   "create_customer": "Create Customer",
@@ -142,5 +141,8 @@
   "password_same_as_current": "The new password must be different from the current one",
   "password_updated": "Password updated. Please sign in again with your new password.",
   "password_update_failed": "Could not update the password, try again",
-  "network_error": "Could not reach the server. Check your connection, or turn off ad blockers and browser extensions for this site, then try again."
+  "network_error": "Could not reach the server. Check your connection, or turn off ad blockers and browser extensions for this site, then try again.",
+  "add_new_customers": "Add new customers",
+  "loading_customers": "Loading customers",
+  "reset_filters": "Reset filters"
 }

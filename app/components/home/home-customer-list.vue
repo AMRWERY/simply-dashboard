@@ -22,10 +22,12 @@
     <Transition name="empty" appear>
       <LazyVEmptyState
         v-if="customers.length === 0"
-        icon="search-icon"
-        :title="t('no_customers_found')"
-        :description="t('no_customers_found_description')"
-        :action-label="t('reset_filters')"
+        :icon="isDatabaseEmpty ? 'persons-icon' : 'search-icon'"
+        :title="isDatabaseEmpty ? t('add_new_customers') : t('no_customers_found')"
+        :description="
+          isDatabaseEmpty ? undefined : t('no_customers_found_description')
+        "
+        :action-label="isDatabaseEmpty ? undefined : t('reset_filters')"
         @action="emit('reset')"
       />
     </Transition>
@@ -37,10 +39,16 @@ import type { Customer, Status } from "~/types/home";
 
 const { t } = useI18n();
 
-defineProps<{
+const props = defineProps<{
+  /** The customers to show (already filtered and paginated). */
   customers: Customer[];
+  /** How many customers exist in total, ignoring search and filters. */
+  totalCustomers: number;
   statusStyles: Record<Status, { label: string; class: string }>;
 }>();
+
+// No customers at all (vs. a search/filter that matched none).
+const isDatabaseEmpty = computed(() => props.totalCustomers === 0);
 
 const emit = defineEmits<{
   (e: "view", customer: Customer): void;

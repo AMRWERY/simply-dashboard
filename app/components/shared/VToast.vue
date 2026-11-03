@@ -109,7 +109,7 @@ const variantClasses: Record<
   },
 };
 
-function add(options: ToastOptions) {
+const add = (options: ToastOptions) => {
   const id = ++_nextId;
   const duration = options.duration ?? 4000;
 
@@ -131,15 +131,15 @@ function add(options: ToastOptions) {
       if (item.progress <= 0) remove(id);
     }, 100);
   }
-}
+};
 
-function remove(id: number) {
+const remove = (id: number) => {
   const idx = toasts.value.findIndex((t) => t.id === id);
   if (idx === -1) return;
   const item = toasts.value[idx];
   if (item._timer) clearInterval(item._timer);
   toasts.value.splice(idx, 1);
-}
+};
 
 /** Expose API for use via template ref or a useToast composable */
 defineExpose({ add, remove });

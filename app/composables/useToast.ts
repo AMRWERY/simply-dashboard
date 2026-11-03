@@ -6,13 +6,13 @@ const _toastRef = ref<{
   remove: (id: number) => void;
 } | null>(null);
 
-export function useToast() {
+export const useToast = () => {
   /** Called once from app.vue to register the mounted VToast instance */
-  function register(instance: typeof _toastRef.value) {
+  const register = (instance: typeof _toastRef.value) => {
     _toastRef.value = instance;
-  }
+  };
 
-  function add(options: ToastOptions) {
+  const add = (options: ToastOptions) => {
     if (!_toastRef.value) {
       console.warn(
         "[useToast] VToast is not mounted yet. Make sure <VToast> is in app.vue.",
@@ -20,11 +20,11 @@ export function useToast() {
       return;
     }
     _toastRef.value.add(options);
-  }
+  };
 
-  function remove(id: number) {
+  const remove = (id: number) => {
     _toastRef.value?.remove(id);
-  }
+  };
 
   return { register, add, remove };
-}
+};

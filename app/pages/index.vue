@@ -22,6 +22,7 @@
     <lazy-home-customer-list
       v-else
       :customers="paginatedCustomers"
+      :total-customers="customers.length"
       :status-styles="statusStyles"
       @view="openDetails"
       @edit="openEditModal"

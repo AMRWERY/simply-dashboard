@@ -2,7 +2,7 @@
   <div
     class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
     role="status"
-    aria-label="Loading customers"
+    :aria-label="$t('loading_customers')"
   >
     <article
       v-for="n in count"

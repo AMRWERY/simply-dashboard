@@ -30,6 +30,7 @@
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "tailwindcss-rtl": "^1.0.0"
   }
 }

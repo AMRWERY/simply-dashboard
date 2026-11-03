@@ -251,7 +251,7 @@
 const { locale, t } = useI18n();
 const auth = useAuthStore();
 const customerStore = useCustomerStore();
-const supabase = useSupabaseClient();
+const api = useRequestFetch();
 const localePath = useLocalePath();
 const { add: addToast } = useToast();
 
@@ -271,15 +271,10 @@ const details = ref<{
 } | null>(null);
 
 onMounted(async () => {
-  const { data } = await supabase.auth.getUser();
-  const u = data.user;
-  if (u) {
-    details.value = {
-      createdAt: u.created_at ?? null,
-      lastSignInAt: u.last_sign_in_at ?? null,
-      verified: !!u.email_confirmed_at,
-      provider: String(u.app_metadata?.provider ?? "email"),
-    };
+  try {
+    details.value = await api<NonNullable<typeof details.value>>("/api/profile");
+  } catch (e) {
+    console.error("[profile] account details failed", e);
   }
   // Needed for the activity summary when landing here directly.
   if (!customerStore.items.length) {
@@ -385,10 +380,9 @@ const changePassword = async (
   values: Record<string, string>,
   { resetForm }: { resetForm: () => void },
 ) => {
-  const email = auth.user?.email;
   const current = values.current_password ?? "";
   const next = values.new_password ?? "";
-  if (!email || isChangingPassword.value) return;
+  if (isChangingPassword.value) return;
 
   if (current === next) {
     addToast({ type: "error", message: t("password_same_as_current") });
@@ -397,35 +391,28 @@ const changePassword = async (
 
   isChangingPassword.value = true;
   try {
-    // Re-check the current password first: a stolen open session alone
-    // shouldn't be enough to take over the account.
-    const { error: verifyError } = await supabase.auth.signInWithPassword({
-      email,
-      password: current,
+    // The server re-checks the current password, changes it, and ends the
+    // session (clearing the cookies), so the user signs in with the new one.
+    await api("/api/auth/password", {
+      method: "POST",
+      body: { currentPassword: current, newPassword: next },
     });
-    if (verifyError) {
-      addToast({ type: "error", message: t("current_password_incorrect") });
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({ password: next });
-    if (error) throw error;
 
     resetForm();
+    auth.clearLocalSession();
     addToast({ type: "success", message: t("password_updated") });
-
-    // Sign out so the new password is what gets used next; the toast lives
-    // in the app root, so it stays visible on the login page.
-    try {
-      await auth.logout();
-    } catch {
-      addToast({ type: "error", message: t("logout_failed") });
-      return;
-    }
+    // The toast lives in the app root, so it stays visible on the login page.
     await navigateTo(localePath("/auth"));
   } catch (e) {
-    console.error("[profile] password update failed", e);
-    addToast({ type: "error", message: t("password_update_failed") });
+    const code = (e as { data?: { data?: { code?: string } } })?.data?.data?.code;
+    if (isNetworkError(e) || code === "upstream_unreachable") {
+      addToast({ type: "error", message: t("network_error"), duration: 9000 });
+    } else if (code === "current_password_incorrect") {
+      addToast({ type: "error", message: t("current_password_incorrect") });
+    } else {
+      console.error("[profile] password update failed", e);
+      addToast({ type: "error", message: t("password_update_failed") });
+    }
   } finally {
     isChangingPassword.value = false;
   }

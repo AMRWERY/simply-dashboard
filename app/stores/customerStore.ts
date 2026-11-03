@@ -1,122 +1,60 @@
-import type { Database } from "~/types/database.types";
+import type { CustomerRow } from "~/utils/customer";
 import type { Customer, CustomerInput } from "~/types/home";
 
-const roundMoney = (n: number | undefined) => Math.round((n ?? 0) * 100) / 100;
-const IMAGE_BUCKET = "customer-images";
-
+/**
+ * Customers state. The data lives behind our own server routes
+ * (server/api/customers), which talk to Supabase; this store never does.
+ * Writes are multipart so an optional photo travels with the fields.
+ */
 export const useCustomerStore = defineStore("customers", () => {
-  const supabase = useSupabaseClient<Database>();
-  const supabaseUser = useSupabaseUser();
   const items = ref<Customer[]>([]);
+  const api = useRequestFetch();
 
-  function toPayload(input: CustomerInput) {
-    return {
-      name: input.name.trim(),
-      phone: input.phone.trim(),
-      email: input.email?.trim() || null,
-      city: input.city?.trim() || null,
-      status: input.status ?? "new",
-      amount_due: roundMoney(input.amountDue),
-      amount_paid: roundMoney(input.amountPaid),
-    };
-  }
+  const toFormData = (input: CustomerInput) => {
+    const form = new FormData();
+    form.append("name", input.name);
+    form.append("phone", input.phone);
+    form.append("email", input.email ?? "");
+    form.append("city", input.city ?? "");
+    form.append("status", input.status ?? "new");
+    form.append("amountDue", String(input.amountDue ?? ""));
+    form.append("amountPaid", String(input.amountPaid ?? 0));
+    if (input.removeImage) form.append("removeImage", "true");
+    if (input.imageFile) form.append("image", input.imageFile);
+    return form;
+  };
 
-  async function fetchAll() {
-    const { data, error } = await supabase
-      .from("customers")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    items.value = data.map(toCustomer);
-  }
+  const fetchAll = async () => {
+    const rows = await api<CustomerRow[]>("/api/customers");
+    items.value = rows.map(toCustomer);
+  };
 
-  const bucket = () => supabase.storage.from(IMAGE_BUCKET);
-
-  /** Throws Error("invalid-type" | "too-large") for client-side rejections. */
-  async function uploadImage(file: File) {
-    const uid = supabaseUser.value?.sub;
-    if (!uid) throw new Error("not-authenticated");
-    const contentType = resolveImageType(file);
-    const ext = CUSTOMER_IMAGE_TYPES[contentType];
-    if (!ext) throw new Error("invalid-type");
-    if (file.size > CUSTOMER_IMAGE_MAX_BYTES) throw new Error("too-large");
-
-    // Unique name avoids stale caches when a photo is replaced.
-    const path = `${uid}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await bucket().upload(path, file, {
-      contentType,
-      cacheControl: "31536000",
+  const create = async (input: CustomerInput) => {
+    const row = await api<CustomerRow>("/api/customers", {
+      method: "POST",
+      body: toFormData(input),
     });
-    if (error) throw error;
-    return { path, url: bucket().getPublicUrl(path).data.publicUrl };
-  }
+    items.value.unshift(toCustomer(row));
+  };
 
-  const pathFromUrl = (url: string | null | undefined) =>
-    url?.split(`/${IMAGE_BUCKET}/`)[1];
-
-  async function create(input: CustomerInput) {
-    const uploaded = input.imageFile ? await uploadImage(input.imageFile) : null;
-    const { data, error } = await supabase
-      .from("customers")
-      .insert({ ...toPayload(input), image_url: uploaded?.url ?? null })
-      .select()
-      .single();
-    if (error) {
-      if (uploaded) await bucket().remove([uploaded.path]); // no orphan file
-      throw error;
-    }
-    items.value.unshift(toCustomer(data));
-  }
-
-  async function update(id: string, input: CustomerInput) {
-    const previous = items.value.find((c) => c.id === id)?.imageUrl ?? null;
-    const uploaded = input.imageFile ? await uploadImage(input.imageFile) : null;
-    const imagePatch = uploaded
-      ? { image_url: uploaded.url }
-      : input.removeImage
-        ? { image_url: null }
-        : {};
-
-    // .single() errors when no row matched (missing or not owned).
-    const { data, error } = await supabase
-      .from("customers")
-      .update({
-        ...toPayload(input),
-        ...imagePatch,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) {
-      if (uploaded) await bucket().remove([uploaded.path]);
-      throw error;
-    }
+  const update = async (id: string, input: CustomerInput) => {
+    const row = await api<CustomerRow>(`/api/customers/${id}`, {
+      method: "PATCH",
+      body: toFormData(input),
+    });
     const idx = items.value.findIndex((c) => c.id === id);
-    if (idx !== -1) items.value[idx] = toCustomer(data);
+    if (idx !== -1) items.value[idx] = toCustomer(row);
+  };
 
-    const oldPath = "image_url" in imagePatch ? pathFromUrl(previous) : null;
-    if (oldPath) await bucket().remove([oldPath]);
-  }
-
-  async function remove(id: string) {
-    const imageUrl = items.value.find((c) => c.id === id)?.imageUrl;
-    const { data, error } = await supabase
-      .from("customers")
-      .delete()
-      .eq("id", id)
-      .select("id");
-    if (error) throw error;
-    if (!data.length) throw new Error("customer-not-found");
+  const remove = async (id: string) => {
+    await api(`/api/customers/${id}`, { method: "DELETE" });
     items.value = items.value.filter((c) => c.id !== id);
-    const path = pathFromUrl(imageUrl);
-    if (path) await bucket().remove([path]);
-  }
+  };
 
   /** Drop cached rows, e.g. on logout so the next user never sees them. */
-  function reset() {
+  const reset = () => {
     items.value = [];
-  }
+  };
 
   return { items, fetchAll, create, update, remove, reset };
 });

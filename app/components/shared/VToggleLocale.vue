@@ -41,7 +41,7 @@ const nextLocale = computed<LocaleMeta>(() => {
 const OVERLAY_FADE_MS = 250;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function switchLocale() {
+const switchLocale = async () => {
   if (overlayVisible.value) return;
   const target = nextLocale.value.code;
   overlayTarget.value = target === "ar" ? "ar" : "en";
@@ -55,9 +55,9 @@ async function switchLocale() {
     await wait(150);
     overlayVisible.value = false;
   }
-}
+};
 
-async function applyLocale(target: string) {
+const applyLocale = async (target: string) => {
   // 1. Update @nuxtjs/i18n (handles cookie + URL prefix)
   await setLocale(target);
 
@@ -76,7 +76,7 @@ async function applyLocale(target: string) {
   if (newPath !== current.fullPath) {
     await router.push(newPath);
   }
-}
+};
 </script>
 
 <style scoped>

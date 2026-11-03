@@ -163,8 +163,8 @@ const items = computed<(number | typeof ELLIPSIS)[]>(() => {
   return result;
 });
 
-function go(page: number) {
+const go = (page: number) => {
   const next = Math.min(Math.max(page, 1), pageCount.value);
   if (next !== props.modelValue) emit("update:modelValue", next);
-}
+};
 </script>

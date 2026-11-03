@@ -6,7 +6,7 @@
 const _isDark = ref(false);
 let _initialized = false;
 
-export function useTheme() {
+export const useTheme = () => {
   if (!_initialized && import.meta.client) {
     _initialized = true;
     const stored = localStorage.getItem("theme");
@@ -18,18 +18,18 @@ export function useTheme() {
 
   const isDark = computed(() => _isDark.value);
 
-  function apply(value: boolean) {
+  const apply = (value: boolean) => {
     _isDark.value = value;
     document.documentElement.classList.toggle("dark", value);
     localStorage.setItem("theme", value ? "dark" : "light");
-  }
+  };
 
   /**
    * Toggles the theme with a circular reveal expanding from the click point
    * (View Transitions API). Falls back to an instant swap when unsupported
    * or when the user prefers reduced motion.
    */
-  function toggle(event?: Event) {
+  const toggle = (event?: Event) => {
     const next = !_isDark.value;
     const doc = document as Document & {
       startViewTransition?: (cb: () => Promise<void> | void) => {
@@ -80,13 +80,13 @@ export function useTheme() {
         }
       );
     });
-  }
+  };
 
-  function setDark(value: boolean) {
+  const setDark = (value: boolean) => {
     _isDark.value = value;
     document.documentElement.classList.toggle("dark", value);
     localStorage.setItem("theme", value ? "dark" : "light");
-  }
+  };
 
   return { isDark, toggle, setDark };
-}
+};

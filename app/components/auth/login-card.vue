@@ -137,8 +137,13 @@ const submit = async (values: Record<string, string>) => {
       remember.value,
     );
     await navigateTo(localePath("/"));
-  } catch {
-    addToast({ type: "error", message: t("incorrect_email_or_password") });
+  } catch (e) {
+    const code = (e as { data?: { data?: { code?: string } } })?.data?.data?.code;
+    if (isNetworkError(e) || code === "upstream_unreachable") {
+      addToast({ type: "error", message: t("network_error"), duration: 9000 });
+    } else {
+      addToast({ type: "error", message: t("incorrect_email_or_password") });
+    }
   } finally {
     isLoading.value = false;
   }

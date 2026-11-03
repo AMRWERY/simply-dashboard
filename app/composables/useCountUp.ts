@@ -2,7 +2,7 @@
  * Tweens a number toward `target` (ease-out) whenever it changes.
  * Client-only; on the server and with reduced motion it jumps straight there.
  */
-export function useCountUp(target: Ref<number> | ComputedRef<number>, duration = 700) {
+export const useCountUp = (target: Ref<number> | ComputedRef<number>, duration = 700) => {
   const display = ref(target.value);
   let frame = 0;
 
@@ -10,7 +10,7 @@ export function useCountUp(target: Ref<number> | ComputedRef<number>, duration =
     import.meta.client &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function animate(from: number, to: number) {
+  const animate = (from: number, to: number) => {
     cancelAnimationFrame(frame);
     if (!import.meta.client || reduced() || from === to) {
       display.value = to;
@@ -24,7 +24,7 @@ export function useCountUp(target: Ref<number> | ComputedRef<number>, duration =
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-  }
+  };
 
   // First paint counts up from 0 so the numbers "arrive".
   onMounted(() => {
@@ -35,4 +35,4 @@ export function useCountUp(target: Ref<number> | ComputedRef<number>, duration =
   onBeforeUnmount(() => cancelAnimationFrame(frame));
 
   return display;
-}
+};

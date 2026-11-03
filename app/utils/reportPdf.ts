@@ -16,7 +16,7 @@ const GRID: RGB = [229, 231, 235];
 
 const fontCache = new Map<string, string>();
 
-async function loadFont(url: string): Promise<string> {
+const loadFont = async (url: string): Promise<string> => {
   const cached = fontCache.get(url);
   if (cached) return cached;
   const res = await fetch(url);
@@ -30,7 +30,7 @@ async function loadFont(url: string): Promise<string> {
   const b64 = btoa(binary);
   fontCache.set(url, b64);
   return b64;
-}
+};
 
 /** Intl adds invisible bidi marks and no-break spaces the PDF font can't draw. */
 const clean = (s: string) => s.replace(/[‎‏؜‪-‮]/g, "").replace(/[  ]/g, " ");
@@ -40,12 +40,12 @@ const clean = (s: string) => s.replace(/[‎‏؜‪-‮]/g, "").replace(/[  
  * because an Arabic-capable font is embedded and jsPDF shapes and reorders
  * the text itself, so strings are passed in normal logical order.
  */
-export async function buildReportPdf({
+export const buildReportPdf = async ({
   customers,
   locale,
   t,
   baseURL,
-}: ReportPdfInput) {
+}: ReportPdfInput) => {
   const [{ jsPDF }, { autoTable }] = await Promise.all([
     import("jspdf"),
     import("jspdf-autotable"),
@@ -350,4 +350,4 @@ export async function buildReportPdf({
   }
 
   return doc;
-}
+};
