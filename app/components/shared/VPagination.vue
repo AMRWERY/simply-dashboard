@@ -120,10 +120,10 @@ const emit = defineEmits<{
 }>();
 
 const pageBtn =
-  "flex h-11 min-w-11 items-center justify-center rounded-xl px-3 text-sm font-bold transition-all duration-200 outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 dark:focus-visible:ring-indigo-700";
+  "flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl px-3 text-sm font-bold transition-all duration-200 outline-none hover:-translate-y-0.5 active:scale-95 focus-visible:ring-4 focus-visible:ring-indigo-300 dark:focus-visible:ring-indigo-700";
 
 const navBtn =
-  "flex h-11 w-11 items-center justify-center rounded-xl text-gray-600 transition-all duration-200 outline-none hover:bg-indigo-50 focus-visible:ring-4 focus-visible:ring-indigo-300 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-300 dark:hover:bg-indigo-950/40 dark:focus-visible:ring-indigo-700";
+  "flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl text-gray-600 transition-all duration-200 outline-none hover:-translate-y-0.5 hover:bg-indigo-50 active:scale-95 focus-visible:ring-4 focus-visible:ring-indigo-300 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-300 dark:hover:bg-indigo-950/40 dark:focus-visible:ring-indigo-700";
 
 const pageCount = computed(() =>
   Math.max(1, Math.ceil(props.total / props.pageSize)),

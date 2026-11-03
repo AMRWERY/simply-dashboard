@@ -11,7 +11,9 @@
       variantClasses[variant],
       sizeClasses[size],
       block ? 'w-full' : '',
-      isDisabled ? 'cursor-not-allowed opacity-50 active:scale-100' : 'cursor-pointer',
+      isDisabled
+        ? 'cursor-not-allowed opacity-50 active:scale-100'
+        : ['cursor-pointer', hoverClasses[variant]],
       loading ? 'pointer-events-none' : '',
     ]"
     v-bind="$attrs"
@@ -99,6 +101,18 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20",
   ghost:
     "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white",
+};
+
+// Hover feedback (not applied while disabled): solid buttons lift and glow,
+// softer ones just lift, ghost buttons rely on their background change.
+const hoverClasses: Record<ButtonVariant, string> = {
+  primary: "hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-600/40",
+  danger: "hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-600/40",
+  secondary: "hover:-translate-y-0.5 hover:shadow-md",
+  outline: "hover:-translate-y-0.5 hover:shadow-md",
+  soft: "hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-600/10",
+  "danger-soft": "hover:-translate-y-0.5 hover:shadow-md hover:shadow-red-600/10",
+  ghost: "",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

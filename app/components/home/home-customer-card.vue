@@ -8,7 +8,7 @@
         <div class="flex items-center gap-3">
           <div
             :class="[
-              'flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-sm font-extrabold shadow-sm',
+              'flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-sm font-extrabold shadow-sm transition-transform duration-200 group-hover:scale-110',
               customer.avatarClass,
             ]"
           >

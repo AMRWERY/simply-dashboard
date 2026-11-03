@@ -54,7 +54,7 @@
             <div
               v-for="row in rows"
               :key="row.label"
-              class="flex items-center justify-between gap-4 py-2.5"
+              class="-mx-2 flex items-center justify-between gap-4 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/40"
             >
               <dt class="font-bold text-gray-700 dark:text-gray-300">
                 {{ row.label }}

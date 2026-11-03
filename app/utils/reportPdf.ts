@@ -23,11 +23,6 @@ const INDIGO: RGB = [79, 70, 229];
 const INDIGO_SOFT: RGB = [199, 210, 254];
 const BAND: RGB = [21, 23, 51];
 const GRID: RGB = [229, 231, 235];
-const STATUS_COLORS: Record<string, RGB> = {
-  active: [16, 185, 129],
-  new: [245, 158, 11],
-  "follow-up": [249, 115, 22],
-};
 
 const fontCache = new Map<string, string>();
 
@@ -254,7 +249,7 @@ export async function buildReportPdf({
   }
 
   // ── 3. Status ────────────────────────────────────────────────────────────
-  section(t("customers_by_status"), undefined, 10 + tableHeight(4));
+  section(t("customers_by_status"), undefined, tableHeight(4));
   const counts = statusBreakdown(customers);
   const total = customers.length;
   const statuses = [
@@ -263,19 +258,6 @@ export async function buildReportPdf({
     { key: "follow-up", label: t("follow_up") },
   ] as const;
 
-  // Stacked share bar
-  ensure(14);
-  doc.setFillColor(...GRID);
-  doc.rect(M, y, CW, 5, "F");
-  let used = 0;
-  for (const s of statuses) {
-    const w = total ? (counts[s.key] / total) * CW : 0;
-    if (!w) continue;
-    doc.setFillColor(...STATUS_COLORS[s.key]!);
-    doc.rect(isRtl ? PAGE_W - M - used - w : M + used, y, w, 5, "F");
-    used += w;
-  }
-  y += 10;
   table(
     [t("status"), t("customers"), "%"],
     [

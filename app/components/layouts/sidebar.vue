@@ -74,7 +74,7 @@
               'group flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold transition-all duration-200',
               isCustomersActive
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-white',
+                : 'text-gray-600 hover:translate-x-1 hover:bg-gray-100 hover:text-gray-900 rtl:hover:-translate-x-1 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-white',
             ]"
           >
             <LazyVIcon
@@ -94,7 +94,7 @@
               'group flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold transition-all duration-200',
               isReportsActive
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-white',
+                : 'text-gray-600 hover:translate-x-1 hover:bg-gray-100 hover:text-gray-900 rtl:hover:-translate-x-1 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-white',
             ]"
           >
             <LazyVIcon

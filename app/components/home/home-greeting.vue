@@ -91,7 +91,7 @@
     <!-- Live clock: only the digits that changed roll -->
     <div
       dir="ltr"
-      class="flex items-baseline self-start rounded-2xl bg-white/70 px-5 py-3 text-4xl font-extrabold text-gray-900 tabular-nums shadow-sm ring-1 ring-black/5 backdrop-blur sm:self-auto dark:bg-white/10 dark:text-white dark:ring-white/10"
+      class="flex cursor-default items-baseline self-start rounded-2xl bg-white/70 px-5 py-3 text-4xl font-extrabold text-gray-900 tabular-nums shadow-sm ring-1 ring-black/5 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/90 hover:shadow-md sm:self-auto dark:bg-white/10 dark:text-white dark:ring-white/10 dark:hover:bg-white/15"
       role="timer"
       :aria-label="timeLabel"
     >

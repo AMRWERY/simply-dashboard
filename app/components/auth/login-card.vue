@@ -125,7 +125,7 @@
               variant="primary"
               size="lg"
               block
-              :loading="isLoading"
+              :disabled="isLoading"
               class="mt-2 py-4 text-base sm:text-lg"
             >
               {{ isLoading ? t("signing_in") : t("sign_in") }}

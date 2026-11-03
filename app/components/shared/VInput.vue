@@ -56,7 +56,7 @@
           hasRightSlot ? 'pe-12' : 'pe-4',
           errorMessage
             ? 'border-red-400 focus:border-red-400 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-500/20'
-            : 'border-transparent focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 dark:focus:bg-white/10 dark:focus:ring-indigo-500/20',
+            : 'border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/40 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 dark:focus:bg-white/10 dark:focus:ring-indigo-500/20',
         ]"
         @blur="handleBlur"
         @change="handleChange"

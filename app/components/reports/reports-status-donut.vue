@@ -25,10 +25,13 @@
             cy="50"
             :r="R"
             stroke-width="12"
-            :class="seg.stroke"
+            :class="[
+              seg.stroke,
+              hovered && hovered !== seg.status ? 'opacity-20' : '',
+            ]"
             :stroke-dasharray="`${mounted ? seg.length : 0} ${C}`"
             :stroke-dashoffset="-seg.offset"
-            class="transition-[stroke-dasharray] duration-1000 ease-out"
+            class="transition-[stroke-dasharray,opacity] duration-1000 ease-out"
           />
         </svg>
         <div
@@ -48,7 +51,9 @@
         <li
           v-for="seg in segments"
           :key="seg.status"
-          class="flex items-center justify-between gap-3 text-sm"
+          class="-mx-2 flex cursor-default items-center justify-between gap-3 rounded-lg px-2 py-1 text-sm transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/40"
+          @mouseenter="hovered = seg.status"
+          @mouseleave="hovered = null"
         >
           <span
             class="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-300"
@@ -75,6 +80,9 @@ const props = defineProps<{ customers: Customer[] }>();
 
 const { t } = useI18n();
 const mounted = useMounted();
+
+/** Legend row being hovered: the other donut segments fade back. */
+const hovered = ref<Status | null>(null);
 
 const R = 40;
 const C = 2 * Math.PI * R;

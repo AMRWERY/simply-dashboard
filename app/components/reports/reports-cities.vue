@@ -18,7 +18,11 @@
     </p>
 
     <ul v-else class="mt-5 space-y-4">
-      <li v-for="(row, i) in cities" :key="row.city">
+      <li
+        v-for="(row, i) in cities"
+        :key="row.city"
+        class="group -mx-2 rounded-xl px-2 py-1.5 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/40"
+      >
         <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
           <span
             class="flex min-w-0 items-center gap-2 font-bold text-gray-800 dark:text-gray-200"
@@ -37,7 +41,7 @@
           class="h-2.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
         >
           <div
-            class="h-full rounded-full bg-linear-to-r from-indigo-500 to-violet-400 transition-[width] duration-1000 ease-out"
+            class="h-full rounded-full bg-linear-to-r from-indigo-500 to-violet-400 transition-[width,filter] duration-1000 ease-out group-hover:brightness-110"
             :style="{
               width: mounted ? `${(row.count / max) * 100}%` : '0%',
               transitionDelay: `${i * 90}ms`,

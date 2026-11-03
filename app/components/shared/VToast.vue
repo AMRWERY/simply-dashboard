@@ -51,7 +51,7 @@
           <button
             type="button"
             :aria-label="t('close_notification')"
-            class="transition"
+            class="cursor-pointer transition hover:scale-125"
             :class="variantClasses[toast.type].close"
             @click="remove(toast.id)"
           >

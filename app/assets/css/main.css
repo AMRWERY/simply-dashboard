@@ -7,6 +7,30 @@
 
 html {
   color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+/* Interactive things should look interactive */
+button:not(:disabled),
+[role="button"],
+a[href],
+select,
+summary,
+label[for] {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Brand-coloured text selection */
+::selection {
+  background: rgb(99 102 241 / 0.3);
+}
+
+/* Soften the browser's hard blue on tap (mobile) */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 html.dark {

@@ -27,7 +27,7 @@
         v-for="(row, i) in debtors"
         :key="row.customer.id"
         :style="{ '--i': i }"
-        class="flex items-center gap-3 py-3"
+        class="-mx-2 flex items-center gap-3 rounded-xl px-2 py-3 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/40"
       >
         <span
           class="w-5 shrink-0 text-center text-xs font-extrabold text-gray-400"
