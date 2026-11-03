@@ -139,7 +139,6 @@
       <LazyVButton
         variant="soft"
         size="sm"
-        icon="edit-icon"
         block
         @click="emit('edit', customer)"
       >
@@ -148,7 +147,6 @@
       <LazyVButton
         variant="danger-soft"
         size="sm"
-        icon="delete-icon"
         block
         @click="emit('delete', customer.id)"
       >

@@ -13,14 +13,6 @@
           :aria-labelledby="titleId"
           class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
         >
-          <button
-            type="button"
-            class="absolute end-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            aria-label="Close"
-            @click="emit('close')"
-          >
-            <LazyVIcon name="close-icon" alt="close" class="h-4 w-4" />
-          </button>
 
           <!-- Identity -->
           <div class="flex items-center gap-4">
@@ -79,7 +71,6 @@
             <LazyVButton
               variant="primary"
               size="md"
-              icon="edit-icon"
               @click="emit('edit', customer)"
             >
               Update
