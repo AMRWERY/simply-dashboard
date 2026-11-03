@@ -2,49 +2,54 @@
   <Transition name="locale-overlay">
     <div
       v-if="visible"
-      class="fixed inset-0 z-[9999] flex items-center justify-center bg-indigo-950/60 p-4 backdrop-blur-md"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-[#f4f4f8]/85 p-4 backdrop-blur-xl dark:bg-[#17181f]/85"
       role="status"
       aria-live="polite"
+      aria-busy="true"
+      :lang="target"
+      :dir="info.dir"
     >
-      <div
-        class="overlay-card relative w-full max-w-xs overflow-hidden rounded-3xl border border-white/20 bg-white/90 p-8 text-center shadow-2xl shadow-indigo-950/40 dark:border-white/10 dark:bg-[#1e1f2b]/90"
-      >
-        <!-- Soft glow behind the badge -->
-        <div
-          class="pointer-events-none absolute -top-12 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-indigo-500/25 blur-3xl"
-        />
+      <div class="overlay-content flex flex-col items-center text-center">
+        <!-- Target language inside an indeterminate progress ring -->
+        <div class="relative flex h-28 w-28 items-center justify-center">
+          <svg
+            class="absolute inset-0 h-full w-full -rotate-90"
+            viewBox="0 0 100 100"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="44"
+              stroke-width="5"
+              class="stroke-indigo-200 dark:stroke-indigo-950"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="44"
+              stroke-width="5"
+              stroke-linecap="round"
+              class="ring-arc stroke-indigo-600 dark:stroke-indigo-400"
+            />
+          </svg>
 
-        <!-- Language badge: both glyphs cross-fade on a loop -->
-        <div
-          class="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-linear-to-br from-indigo-600 to-indigo-500 shadow-lg shadow-indigo-600/30"
-        >
-          <span class="glyph glyph-a text-2xl font-extrabold text-white">
-            {{ glyphs.from }}
-          </span>
-          <span class="glyph glyph-b text-3xl font-extrabold text-amber-300">
-            {{ glyphs.to }}
-          </span>
+          <!-- Glyph re-mounts (and pops) each time the target changes -->
           <span
-            class="ring pointer-events-none absolute inset-0 rounded-3xl border-2 border-indigo-400/60"
-          />
+            :key="target"
+            class="glyph text-4xl font-extrabold text-indigo-700 dark:text-indigo-300"
+          >
+            {{ info.glyph }}
+          </span>
         </div>
 
-        <!-- Bilingual message: readable before the switch has landed -->
-        <p class="relative mt-6 text-base font-extrabold text-gray-900 dark:text-white">
-          {{ message.primary }}
+        <p class="mt-6 text-xl font-extrabold text-gray-900 dark:text-white">
+          {{ info.name }}
         </p>
-        <p class="relative mt-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
-          {{ message.secondary }}
+        <p class="mt-1 text-sm font-semibold text-gray-500 dark:text-gray-400">
+          {{ info.message }}
         </p>
-
-        <!-- Indeterminate progress bar -->
-        <div
-          class="relative mt-6 h-1.5 overflow-hidden rounded-full bg-indigo-100 dark:bg-indigo-950/60"
-        >
-          <span
-            class="bar absolute inset-y-0 w-1/3 rounded-full bg-linear-to-r from-indigo-500 to-amber-400"
-          />
-        </div>
       </div>
     </div>
   </Transition>
@@ -53,94 +58,82 @@
 <script lang="ts" setup>
 const { visible, target } = useLocaleOverlay();
 
-const glyphFor = { en: "EN", ar: "ع" } as const;
-
-// Pointing from the language being left to the one being entered.
-const glyphs = computed(() => ({
-  from: glyphFor[target.value === "ar" ? "en" : "ar"],
-  to: glyphFor[target.value],
-}));
-
-// Hard-coded on purpose: the target language's messages may not be loaded yet.
-const messages = {
-  en: "Switching language…",
-  ar: "جارٍ تغيير اللغة…",
+// Hard-coded on purpose: it must read in the target language before that
+// language's messages have loaded, so it can't come from the locale files.
+const targets = {
+  en: { glyph: "EN", name: "English", message: "Switching language…", dir: "ltr" },
+  ar: { glyph: "ع", name: "العربية", message: "جارٍ تغيير اللغة…", dir: "rtl" },
 } as const;
 
-const message = computed(() => ({
-  primary: messages[target.value],
-  secondary: messages[target.value === "ar" ? "en" : "ar"],
-}));
+const info = computed(() => targets[target.value]);
+
+// Stop the page scrolling behind the overlay.
+watch(visible, (open) => {
+  if (!import.meta.client) return;
+  document.documentElement.style.overflow = open ? "hidden" : "";
+});
+onBeforeUnmount(() => {
+  if (import.meta.client) document.documentElement.style.overflow = "";
+});
 </script>
 
 <style scoped>
 .locale-overlay-enter-active,
 .locale-overlay-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease;
 }
-.locale-overlay-enter-active .overlay-card,
-.locale-overlay-leave-active .overlay-card {
+.locale-overlay-enter-active .overlay-content,
+.locale-overlay-leave-active .overlay-content {
   transition:
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.25s ease;
+    opacity 0.2s ease;
 }
 .locale-overlay-enter-from,
 .locale-overlay-leave-to {
   opacity: 0;
 }
-.locale-overlay-enter-from .overlay-card,
-.locale-overlay-leave-to .overlay-card {
+.locale-overlay-enter-from .overlay-content,
+.locale-overlay-leave-to .overlay-content {
   opacity: 0;
-  transform: scale(0.92) translateY(10px);
+  transform: scale(0.94) translateY(8px);
 }
 
 .glyph {
-  position: absolute;
-  animation: glyph-swap 1.2s ease-in-out infinite;
+  animation: glyph-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.glyph-b {
-  animation-delay: -0.6s;
-}
-@keyframes glyph-swap {
-  0%,
-  100% {
+@keyframes glyph-pop {
+  from {
     opacity: 0;
-    transform: scale(0.6) rotate(-20deg);
+    transform: scale(0.6);
   }
-  25%,
-  50% {
+  to {
     opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-  75% {
-    opacity: 0;
-    transform: scale(0.6) rotate(20deg);
+    transform: none;
   }
 }
 
-.ring {
-  animation: ring-pulse 1.2s ease-out infinite;
+/* A growing/shrinking arc that also rotates: reads as "working" without a % */
+.ring-arc {
+  stroke-dasharray: 276;
+  transform-origin: 50% 50%;
+  animation:
+    ring-dash 1.4s ease-in-out infinite,
+    ring-spin 1.4s linear infinite;
 }
-@keyframes ring-pulse {
-  from {
-    opacity: 0.8;
-    transform: scale(1);
+@keyframes ring-dash {
+  0% {
+    stroke-dashoffset: 250;
   }
+  50% {
+    stroke-dashoffset: 70;
+  }
+  100% {
+    stroke-dashoffset: 250;
+  }
+}
+@keyframes ring-spin {
   to {
-    opacity: 0;
-    transform: scale(1.35);
-  }
-}
-
-.bar {
-  animation: bar-slide 1.1s ease-in-out infinite;
-}
-@keyframes bar-slide {
-  from {
-    inset-inline-start: -35%;
-  }
-  to {
-    inset-inline-start: 102%;
+    transform: rotate(360deg);
   }
 }
 </style>

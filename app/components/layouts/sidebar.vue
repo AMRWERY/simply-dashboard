@@ -45,11 +45,6 @@
               >
                 Simply
               </span>
-              <span
-                class="ms-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400"
-              >
-                CRM
-              </span>
             </div>
           </nuxt-link-locale>
 
