@@ -28,41 +28,47 @@
               class="-mx-1 min-h-0 flex-1 space-y-2.5 overflow-y-auto px-1 pb-1"
             >
               <!-- Photo -->
-              <div class="flex items-center gap-3">
-                <div
-                  class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-xs font-bold text-gray-400 dark:bg-gray-800"
-                >
-                  <img
-                    v-if="previewUrl"
-                    :src="previewUrl"
-                    alt="Customer photo preview"
-                    class="h-full w-full object-cover"
-                  />
-                  <span v-else>No photo</span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <input
-                    ref="fileInput"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    class="hidden"
-                    @change="onFileChange"
-                  />
-                  <LazyVButton
-                    variant="soft"
-                    size="sm"
+              <div class="flex justify-center mt-4">
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  class="hidden"
+                  @change="onFileChange"
+                />
+                <div class="relative">
+                  <!-- The photo itself is the button: click to upload / change -->
+                  <button
+                    type="button"
+                    :aria-label="previewUrl ? 'Change photo' : 'Upload photo'"
+                    class="group relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-gray-100 text-xs font-bold text-gray-400 outline-none transition-all hover:ring-4 hover:ring-indigo-200 focus-visible:ring-4 focus-visible:ring-indigo-300 dark:bg-gray-800 dark:hover:ring-indigo-900"
                     @click="fileInput?.click()"
                   >
-                    {{ previewUrl ? "Change photo" : "Upload photo" }}
-                  </LazyVButton>
-                  <LazyVButton
+                    <img
+                      v-if="previewUrl"
+                      :src="previewUrl"
+                      alt="Customer photo preview"
+                      class="h-full w-full object-cover"
+                    />
+                    <span v-else class="px-2 text-center">Upload photo</span>
+                    <span
+                      v-if="previewUrl"
+                      class="absolute inset-0 flex items-center justify-center bg-black/50 text-[11px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                      Change
+                    </span>
+                  </button>
+
+                  <!-- Remove badge -->
+                  <button
                     v-if="previewUrl"
-                    variant="danger-soft"
-                    size="sm"
+                    type="button"
+                    aria-label="Remove photo"
+                    class="absolute -end-2 -top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700"
                     @click="clearImage"
                   >
-                    Remove
-                  </LazyVButton>
+                    <LazyVIcon name="close-icon" alt="remove" class="h-3 w-3" />
+                  </button>
                 </div>
               </div>
 
