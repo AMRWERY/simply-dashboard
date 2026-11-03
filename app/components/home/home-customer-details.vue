@@ -5,13 +5,12 @@
         v-if="isOpen && customer"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
         @click.self="emit('close')"
-        @keydown.esc="emit('close')"
       >
         <div
           role="dialog"
           aria-modal="true"
           :aria-labelledby="titleId"
-          class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
+          class="details-panel relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
         >
 
           <!-- Identity -->
@@ -102,6 +101,10 @@ const emit = defineEmits<{
   (e: "edit", customer: Customer): void;
 }>();
 
+onKeyStroke("Escape", () => {
+  if (props.isOpen) emit("close");
+});
+
 const { locale } = useI18n();
 const money = (amount: number) => formatMoney(amount, locale.value);
 const titleId = `v-customer-details-${Math.random().toString(36).slice(2, 7)}`;
@@ -128,5 +131,16 @@ const rows = computed(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.details-panel {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
+}
+.fade-enter-from .details-panel,
+.fade-leave-to .details-panel {
+  opacity: 0;
+  transform: scale(0.95) translateY(8px);
 }
 </style>

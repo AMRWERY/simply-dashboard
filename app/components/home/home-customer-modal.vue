@@ -44,13 +44,16 @@
                     class="group relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-gray-100 text-xs font-bold text-gray-400 outline-none transition-all hover:ring-4 hover:ring-indigo-200 focus-visible:ring-4 focus-visible:ring-indigo-300 dark:bg-gray-800 dark:hover:ring-indigo-900"
                     @click="fileInput?.click()"
                   >
-                    <img
-                      v-if="previewUrl"
-                      :src="previewUrl"
-                      alt="Customer photo preview"
-                      class="h-full w-full object-cover"
-                    />
-                    <span v-else class="px-2 text-center">Upload photo</span>
+                    <Transition name="photo" mode="out-in">
+                      <img
+                        v-if="previewUrl"
+                        :key="previewUrl"
+                        :src="previewUrl"
+                        alt="Customer photo preview"
+                        class="h-full w-full object-cover"
+                      />
+                      <span v-else class="px-2 text-center">Upload photo</span>
+                    </Transition>
                     <span
                       v-if="previewUrl"
                       class="absolute inset-0 flex items-center justify-center bg-black/50 text-[11px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
@@ -121,7 +124,7 @@
                 label="Amount due (EGP)"
                 type="number"
                 placeholder="0"
-                :rules="validateAmount"
+                :rules="validateAmountDue"
                 dir="ltr"
                 compact
               />
@@ -199,6 +202,10 @@ const emptyForm = () => ({
 
 const form = ref(emptyForm());
 
+onKeyStroke("Escape", () => {
+  if (props.isOpen && !props.saving) emit("close");
+});
+
 const { add: addToast } = useToast();
 const fileInput = ref<HTMLInputElement | null>(null);
 const imageFile = ref<File | null>(null);
@@ -261,7 +268,12 @@ const validateAmount = (v: unknown): boolean | string => {
   return true;
 };
 
-const validatePaid = (v: unknown): boolean | string => {
+const validateAmountDue = (v: unknown): boolean | string => {
+  if (v === "" || v == null) return "Amount due is required";
+  return validateAmount(v);
+};
+
+const validatePaid =(v: unknown): boolean | string => {
   const base = validateAmount(v);
   if (base !== true) return base;
   if (toAmount(v) > toAmount(form.value.amountDue)) {
@@ -324,6 +336,18 @@ const handleSubmit = () => {
   transition:
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.2s ease;
+}
+
+.photo-enter-active,
+.photo-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+.photo-enter-from,
+.photo-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 
 .modal-enter-from,

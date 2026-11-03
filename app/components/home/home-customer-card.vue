@@ -17,7 +17,8 @@
               :src="customer.imageUrl"
               :alt="customer.name"
               loading="lazy"
-              class="h-full w-full object-cover"
+              class="h-full w-full object-cover opacity-0 transition-opacity duration-300"
+              @load="($event.target as HTMLImageElement).classList.remove('opacity-0')"
             />
             <template v-else>{{ customer.initials }}</template>
           </div>
