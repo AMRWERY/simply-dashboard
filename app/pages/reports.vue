@@ -5,10 +5,10 @@
       class="relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl bg-[#151733] p-6 text-white shadow-xl shadow-indigo-950/20 sm:flex-row sm:items-center sm:p-8"
     >
       <div
-        class="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl"
+        class="pointer-events-none absolute -top-20 -end-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl"
       />
       <div
-        class="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-amber-400/10 blur-3xl"
+        class="pointer-events-none absolute -bottom-20 -start-20 h-64 w-64 rounded-full bg-amber-400/10 blur-3xl"
       />
 
       <div class="relative flex items-center gap-5">

@@ -61,7 +61,7 @@
           <!-- Auto-dismiss progress bar -->
           <div
             v-if="toast.duration && toast.duration > 0"
-            class="absolute bottom-0 left-0 h-0.5 rounded-full"
+            class="absolute bottom-0 start-0 h-0.5 rounded-full"
             :class="variantClasses[toast.type].bar"
             :style="{
               width: `${toast.progress}%`,

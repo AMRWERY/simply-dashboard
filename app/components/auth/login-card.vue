@@ -16,10 +16,10 @@
       >
         <!-- Decorative blobs -->
         <div
-          class="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-amber-100/60 blur-3xl dark:bg-amber-400/10"
+          class="pointer-events-none absolute -top-16 -start-16 h-56 w-56 rounded-full bg-amber-100/60 blur-3xl dark:bg-amber-400/10"
         />
         <div
-          class="pointer-events-none absolute -bottom-20 -right-16 h-56 w-56 rounded-full bg-indigo-100/70 blur-3xl dark:bg-indigo-500/10"
+          class="pointer-events-none absolute -bottom-20 -end-16 h-56 w-56 rounded-full bg-indigo-100/70 blur-3xl dark:bg-indigo-500/10"
         />
 
         <div class="relative">
@@ -42,7 +42,7 @@
                 </svg>
               </div>
               <span
-                class="absolute -bottom-1 -left-1 h-5 w-5 rounded-full bg-amber-400 ring-4 ring-white dark:ring-[#1e1f2b]"
+                class="absolute -bottom-1 -start-1 h-5 w-5 rounded-full bg-amber-400 ring-4 ring-white dark:ring-[#1e1f2b]"
               />
             </div>
             <h1

@@ -21,7 +21,7 @@
       <!-- Right-side icon (decorative) -->
       <span
         v-if="icon"
-        class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400"
+        class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-gray-400"
       >
         <VIcon :name="icon" class="h-5 w-5" />
       </span>
@@ -31,7 +31,7 @@
         v-if="isPassword"
         type="button"
         :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
-        class="absolute inset-y-0 right-4 flex items-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-300"
+        class="absolute inset-y-0 end-4 flex items-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-300"
         @click="passwordVisible = !passwordVisible"
       >
         <VIcon
@@ -50,10 +50,10 @@
         :name="fieldName"
         :aria-describedby="errorMessage ? `${inputId}-error` : undefined"
         :aria-invalid="!!errorMessage"
-        class="w-full rounded-2xl border bg-indigo-50/60 pl-4 text-gray-800 placeholder-gray-400 outline-none transition dark:bg-white/5 dark:text-white"
+        class="w-full rounded-2xl border bg-indigo-50/60 ps-4 text-gray-800 placeholder-gray-400 outline-none transition dark:bg-white/5 dark:text-white"
         :class="[
           compact ? 'py-2.5 text-xs' : 'py-3.5 text-sm',
-          hasRightSlot ? 'pr-12' : 'pr-4',
+          hasRightSlot ? 'pe-12' : 'pe-4',
           errorMessage
             ? 'border-red-400 focus:border-red-400 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-500/20'
             : 'border-transparent focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100 dark:focus:bg-white/10 dark:focus:ring-indigo-500/20',
@@ -142,7 +142,7 @@ const resolvedType = computed(() => {
   return props.type;
 });
 
-// Whether something occupies the right side (determines pr-12 vs pr-4)
+// Whether something occupies the right side (determines pe-12 vs pe-4)
 const hasRightSlot = computed(() => !!props.icon || isPassword.value);
 
 // vee-validate field
