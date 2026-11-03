@@ -4,7 +4,7 @@
       v-for="(tile, i) in tiles"
       :key="tile.label"
       :style="{ '--d': `${120 + i * 80}ms` }"
-      class="fade-up group flex items-center gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm shadow-indigo-900/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-900/10 dark:border-gray-800 dark:bg-[#1e1f2b] dark:shadow-none"
+      class="fade-up group flex items-center gap-4 md:max-xl:flex-col md:max-xl:items-start rounded-3xl border border-gray-100 bg-white p-5 shadow-sm shadow-indigo-900/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-900/10 dark:border-gray-800 dark:bg-[#1e1f2b] dark:shadow-none"
     >
       <div
         :class="[

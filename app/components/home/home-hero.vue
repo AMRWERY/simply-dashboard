@@ -1,6 +1,6 @@
 <template>
   <section
-    class="fade-up relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-indigo-100 bg-linear-to-br from-indigo-50 via-white to-amber-50 p-6 text-indigo-950 shadow-xl shadow-indigo-200/50 sm:flex-row dark:border-transparent dark:bg-[#151733] dark:bg-none dark:text-white dark:shadow-indigo-950/20 sm:items-center sm:p-8"
+    class="fade-up relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-indigo-100 bg-linear-to-br from-indigo-50 via-white to-amber-50 p-6 text-indigo-950 shadow-xl shadow-indigo-200/50 sm:flex-row dark:border-transparent dark:bg-[#151733] dark:bg-none dark:text-white dark:shadow-indigo-950/20 sm:items-center sm:p-8 md:flex-col md:items-start lg:flex-row lg:items-center"
   >
     <!-- Background decorative glow -->
     <div

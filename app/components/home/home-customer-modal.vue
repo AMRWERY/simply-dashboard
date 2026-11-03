@@ -7,7 +7,7 @@
         @click.self="emit('close')"
       >
         <div
-          class="modal-panel relative flex max-h-[85vh] w-full max-w-md flex-col rounded-3xl bg-white p-5 shadow-2xl dark:bg-[#1e1f2b] dark:text-white sm:p-6"
+          class="modal-panel relative flex max-h-[90dvh] w-full max-w-md flex-col rounded-3xl bg-white p-5 shadow-2xl dark:bg-[#1e1f2b] dark:text-white sm:p-6"
         >
           <!-- Modal Header -->
           <div

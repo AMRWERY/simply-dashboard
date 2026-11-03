@@ -10,7 +10,7 @@
           role="dialog"
           aria-modal="true"
           :aria-labelledby="titleId"
-          class="details-panel relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
+          class="details-panel relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
         >
           <!-- Identity -->
           <div class="flex items-center gap-4">

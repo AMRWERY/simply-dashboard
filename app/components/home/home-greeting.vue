@@ -1,7 +1,7 @@
 <template>
   <section
     style="--d: 0ms"
-    class="fade-up relative isolate flex flex-col gap-6 overflow-hidden rounded-3xl border border-white/60 p-6 shadow-lg shadow-indigo-900/5 sm:flex-row sm:items-center sm:justify-between sm:p-7 dark:border-white/5 dark:shadow-none"
+    class="fade-up relative isolate flex flex-col gap-6 overflow-hidden rounded-3xl border border-white/60 p-6 shadow-lg shadow-indigo-900/5 sm:flex-row sm:items-center sm:justify-between sm:p-7 md:flex-col md:items-start md:justify-start lg:flex-row lg:items-center lg:justify-between dark:border-white/5 dark:shadow-none"
   >
     <!-- Backgrounds: every period is stacked, only the active one is visible,
          so the colour cross-fades instead of snapping -->
@@ -108,7 +108,9 @@
           >{{ part.value }}</span
         >
         <span v-else class="relative inline-block overflow-hidden">
-          <Transition name="digit" mode="out-in">
+          <!-- No out-in: the old digit leaves as the new one arrives, so the
+               number is never blank (it ticks every second) -->
+          <Transition name="digit">
             <span :key="part.value" class="inline-block">{{ part.value }}</span>
           </Transition>
         </span>
@@ -261,6 +263,11 @@ const theme = computed(() => themes[period.value]);
   transition:
     opacity 0.2s ease,
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.digit-leave-active {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
 }
 .digit-enter-from {
   opacity: 0;

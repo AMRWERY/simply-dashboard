@@ -1,7 +1,7 @@
 <template>
   <nav
     v-if="pageCount > 1"
-    class="flex flex-col items-center justify-between gap-4 sm:flex-row"
+    class="flex flex-col items-center justify-between gap-4 sm:flex-row md:flex-col lg:flex-row"
     :aria-label="t('pagination')"
   >
     <i18n-t

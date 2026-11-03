@@ -12,7 +12,7 @@
     <!-- Sidebar (Fixed on Desktop & Mobile Drawer) -->
     <aside
       :class="[
-        'fixed inset-y-0 start-0 z-40 flex h-screen w-64 flex-col justify-between border-e border-gray-200/80 bg-white transition-transform duration-300 dark:border-gray-800/80 dark:bg-[#1e1f2b] md:translate-x-0',
+        'fixed inset-y-0 start-0 z-40 flex w-64 flex-col justify-between border-e border-gray-200/80 bg-white transition-transform duration-300 dark:border-gray-800/80 dark:bg-[#1e1f2b] md:translate-x-0',
         modelValue
           ? 'translate-x-0'
           : '-translate-x-full rtl:translate-x-full md:rtl:translate-x-0',

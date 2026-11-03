@@ -12,7 +12,7 @@
             role="dialog"
             aria-modal="true"
             :aria-labelledby="dialogTitleId"
-            class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 text-center shadow-2xl transition-all duration-200 dark:bg-[#1e1f2b] dark:text-white"
+            class="relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 text-center shadow-2xl transition-all duration-200 dark:bg-[#1e1f2b] dark:text-white"
           >
             <!-- Danger Warning Icon -->
             <div

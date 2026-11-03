@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
+    class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
     role="status"
     aria-label="Loading customers"
   >
