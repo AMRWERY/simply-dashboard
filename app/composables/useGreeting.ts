@@ -15,7 +15,7 @@ export const getDayPeriod = (hour: number): DayPeriod => {
 export const useGreeting = () => {
   const { locale, t } = useI18n();
   // Ticks every second and pauses itself when the component unmounts.
-  const now = useNow({ interval: 1000 });
+  const now = useNowEvery(1000);
 
   const intlLocale = computed(() =>
     locale.value === "ar" ? "ar-EG-u-nu-latn" : "en-US",

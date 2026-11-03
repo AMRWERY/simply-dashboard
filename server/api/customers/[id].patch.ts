@@ -1,12 +1,11 @@
-import { randomUUID } from "node:crypto";
-
-const imagePath = (url: string | null | undefined) =>
-  url?.split(`/${CUSTOMER_IMAGES}/`)[1];
-
 /**
- * PATCH /api/customers/:id — multipart form like create. A new `image`
- * replaces the photo; `removeImage=true` clears it. The previous file is
- * deleted only after the row has been saved.
+ * PATCH /api/customers/:id — multipart form like create; `schedules` is the
+ * full list, so entries missing from it are deleted.
+ *
+ * Photo: a new `image` overwrites this customer's stored file in place (same
+ * path), `removeImage=true` deletes it. A file left at a different path (an
+ * older upload, or a changed extension such as .jpg -> .png) is removed once
+ * the row has been saved, so the bucket never ends up with two copies.
  */
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -15,6 +14,9 @@ export default defineEventHandler(async (event) => {
 
   const { fields, file } = await readForm(event);
   const payload = parseCustomer(fields);
+  // Absent field = leave the schedules alone (an empty list means delete all).
+  const schedules =
+    fields.schedules === undefined ? null : parseSchedules(fields.schedules);
   const image = file ? checkImage(file) : null;
 
   // Also proves the row exists and belongs to this user (row-level security).
@@ -24,38 +26,32 @@ export default defineEventHandler(async (event) => {
     .eq("id", id)
     .single();
   if (findError) dbError(findError);
+  const oldPath = storagePath(previous.image_url, CUSTOMER_IMAGES);
 
-  let uploadedPath: string | null = null;
+  let newPath: string | null = null;
   let imagePatch: { image_url?: string | null } = {};
   if (file && image) {
-    uploadedPath = `${user.sub}/${randomUUID()}.${image.ext}`;
-    const { error } = await db.storage
-      .from(CUSTOMER_IMAGES)
-      .upload(uploadedPath, file, {
-        contentType: image.type,
-        cacheControl: "31536000",
-      });
-    if (error) storageError(error);
-    imagePatch = {
-      image_url: db.storage.from(CUSTOMER_IMAGES).getPublicUrl(uploadedPath).data
-        .publicUrl,
-    };
+    const uploaded = await uploadCustomerImage(db, user.sub, id, file, image);
+    newPath = uploaded.path;
+    imagePatch = { image_url: uploaded.url };
   } else if (fields.removeImage === "true") {
     imagePatch = { image_url: null };
   }
 
-  const { data, error } = await db
+  const { error } = await db
     .from("customers")
     .update({ ...payload, ...imagePatch, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .select()
-    .single();
+    .eq("id", id);
   if (error) {
-    if (uploadedPath) await db.storage.from(CUSTOMER_IMAGES).remove([uploadedPath]);
+    // A brand-new file at a new path is undone; an in-place overwrite is not.
+    if (newPath && newPath !== oldPath) await removeFiles(db, CUSTOMER_IMAGES, [newPath]);
     dbError(error);
   }
 
-  const old = "image_url" in imagePatch ? imagePath(previous.image_url) : null;
-  if (old) await db.storage.from(CUSTOMER_IMAGES).remove([old]);
-  return data;
+  if (schedules) await syncSchedules(db, id, schedules);
+
+  if ("image_url" in imagePatch && oldPath && oldPath !== newPath) {
+    await removeFiles(db, CUSTOMER_IMAGES, [oldPath]);
+  }
+  return loadCustomer(db, id);
 });

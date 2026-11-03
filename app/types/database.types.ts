@@ -56,6 +56,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      customer_schedules: {
+        Row: {
+          id: string;
+          customer_id: string;
+          owner_id: string;
+          scheduled_at: string;
+          done: boolean;
+          done_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          owner_id?: string;
+          scheduled_at: string;
+          done?: boolean;
+          done_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          owner_id?: string;
+          scheduled_at?: string;
+          done?: boolean;
+          done_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customer_schedules_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

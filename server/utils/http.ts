@@ -86,8 +86,11 @@ export const jwtClaims = (token: string): Record<string, unknown> => {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const routeId = (event: H3Event): string => {
-  const id = getRouterParam(event, "id") ?? "";
-  if (!UUID.test(id)) httpError(400, "invalid_id", "Invalid id");
+export const isUuid = (value: string): boolean => UUID.test(value);
+
+/** A UUID route parameter (default `id`), or a 400. */
+export const routeId = (event: H3Event, param = "id"): string => {
+  const id = getRouterParam(event, param) ?? "";
+  if (!isUuid(id)) httpError(400, "invalid_id", "Invalid id");
   return id;
 };

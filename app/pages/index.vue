@@ -27,6 +27,7 @@
       @view="openDetails"
       @edit="openEditModal"
       @delete="promptDeleteCustomer"
+      @schedule="toggleSchedule"
       @reset="resetFilters"
     />
 
@@ -37,6 +38,10 @@
       :status-styles="statusStyles"
       @close="closeDetails"
       @edit="editFromDetails"
+      @schedule="
+        (scheduleId, done) =>
+          detailsCustomer && toggleSchedule(detailsCustomer.id, scheduleId, done)
+      "
     />
 
     <!-- Pagination: only when results exceed one page -->
@@ -235,11 +240,31 @@ const confirmDeleteCustomer = async () => {
 
 // Details Dialog State & Handlers
 const isDetailsOpen = ref(false);
-const detailsCustomer = ref<Customer | null>(null);
+// Kept as an id and looked up in the store, so the open dialog reflects
+// changes such as marking a date done (a stored object would go stale).
+const detailsCustomerId = ref<string | null>(null);
+const detailsCustomer = computed(
+  () => customers.value.find((c) => c.id === detailsCustomerId.value) ?? null,
+);
 
 const openDetails = (customer: Customer) => {
-  detailsCustomer.value = customer;
+  detailsCustomerId.value = customer.id;
   isDetailsOpen.value = true;
+};
+
+// Mark one scheduled date done (or undo it) from the card or the details dialog.
+const toggleSchedule = async (
+  customerId: string,
+  scheduleId: string,
+  done: boolean,
+) => {
+  try {
+    await customerStore.setScheduleDone(customerId, scheduleId, done);
+    if (done) addToast({ type: "success", message: t("schedule_marked_done") });
+  } catch (e) {
+    console.error("[customers] schedule update failed", e);
+    addToast(failureToast(e, "schedule_update_failed"));
+  }
 };
 
 const closeDetails = () => {

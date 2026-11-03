@@ -68,6 +68,54 @@
             </div>
           </dl>
 
+          <!-- Schedule -->
+          <div v-if="customer.schedules.length" class="mt-5">
+            <h4 class="mb-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+              {{ t("schedule") }}
+            </h4>
+            <ul class="space-y-2">
+              <li
+                v-for="entry in customer.schedules"
+                :key="entry.id"
+                class="flex items-center justify-between gap-3 rounded-2xl bg-gray-50/80 px-3 py-2.5 transition-colors duration-200 hover:bg-gray-100 dark:bg-gray-800/40 dark:hover:bg-gray-800/70"
+              >
+                <div class="min-w-0">
+                  <p
+                    dir="auto"
+                    :class="[
+                      'truncate text-xs font-bold',
+                      entry.done
+                        ? 'text-gray-400 line-through dark:text-gray-500'
+                        : 'text-gray-800 dark:text-gray-100',
+                    ]"
+                  >
+                    {{ formatSchedule(entry.at, locale) }}
+                  </p>
+                  <span
+                    :class="[
+                      'mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold',
+                      PILLS[scheduleStatus(entry, now)],
+                    ]"
+                  >
+                    {{ t(scheduleStatus(entry, now) === "done" ? "done" : scheduleStatus(entry, now)) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  :class="[
+                    'shrink-0 cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95',
+                    entry.done
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-emerald-600 text-white hover:bg-emerald-700',
+                  ]"
+                  @click="emit('schedule', entry.id, !entry.done)"
+                >
+                  {{ entry.done ? t("undo") : t("mark_done") }}
+                </button>
+              </li>
+            </ul>
+          </div>
+
           <div class="mt-6 grid grid-cols-2 gap-3">
             <LazyVButton variant="secondary" size="md" @click="emit('close')">
               {{ t("close") }}
@@ -100,7 +148,17 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "edit", customer: Customer): void;
+  (e: "schedule", scheduleId: string, done: boolean): void;
 }>();
+
+// Re-evaluated every 30s so an entry turns "overdue" while the dialog is open.
+const now = useNowEvery(30_000);
+
+const PILLS = {
+  done: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+  overdue: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300",
+  upcoming: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300",
+};
 
 onKeyStroke("Escape", () => {
   if (props.isOpen) emit("close");

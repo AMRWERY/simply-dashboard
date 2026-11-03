@@ -15,6 +15,7 @@
         @view="emit('view', $event)"
         @edit="emit('edit', $event)"
         @delete="emit('delete', $event)"
+        @schedule="(scheduleId, done) => emit('schedule', customer.id, scheduleId, done)"
       />
     </TransitionGroup>
 
@@ -54,6 +55,7 @@ const emit = defineEmits<{
   (e: "view", customer: Customer): void;
   (e: "edit", customer: Customer): void;
   (e: "delete", id: string): void;
+  (e: "schedule", customerId: string, scheduleId: string, done: boolean): void;
   (e: "reset"): void;
 }>();
 </script>

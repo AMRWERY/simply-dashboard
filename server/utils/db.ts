@@ -12,6 +12,8 @@ export const AVATARS = "avatars";
 export const dbFor = (event: H3Event) =>
   serverSupabaseClient<Database>(event);
 
+export type Db = Awaited<ReturnType<typeof dbFor>>;
+
 /** The signed-in user's claims, or a 401. */
 export const requireUser = async (event: H3Event) => {
   let claims: Awaited<ReturnType<typeof serverSupabaseUser>> = null;

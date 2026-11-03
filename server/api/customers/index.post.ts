@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 
 /**
- * POST /api/customers — multipart form: the customer fields plus an optional
- * `image` file. The photo is uploaded first, and removed again if the row
- * can't be saved, so no orphan files are left behind.
+ * POST /api/customers — multipart form: the customer fields, a JSON `schedules`
+ * list, and an optional `image` file. The customer's id is chosen here so the
+ * photo can be stored at `<owner>/<id>.<ext>`; if the row can't be saved, the
+ * photo is removed again so no orphan file is left behind.
  */
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -11,31 +12,36 @@ export default defineEventHandler(async (event) => {
 
   const { fields, file } = await readForm(event);
   const payload = parseCustomer(fields);
+  const schedules = parseSchedules(fields.schedules);
   const image = file ? checkImage(file) : null;
 
+  const id = randomUUID();
   let uploadedPath: string | null = null;
   let imageUrl: string | null = null;
   if (file && image) {
-    uploadedPath = `${user.sub}/${randomUUID()}.${image.ext}`;
-    const { error } = await db.storage
-      .from(CUSTOMER_IMAGES)
-      .upload(uploadedPath, file, {
-        contentType: image.type,
-        cacheControl: "31536000",
-      });
-    if (error) storageError(error);
-    imageUrl = db.storage.from(CUSTOMER_IMAGES).getPublicUrl(uploadedPath).data
-      .publicUrl;
+    const uploaded = await uploadCustomerImage(db, user.sub, id, file, image);
+    uploadedPath = uploaded.path;
+    imageUrl = uploaded.url;
   }
 
   const { data, error } = await db
     .from("customers")
-    .insert({ ...payload, image_url: imageUrl })
+    .insert({ id, ...payload, image_url: imageUrl })
     .select()
     .single();
   if (error) {
-    if (uploadedPath) await db.storage.from(CUSTOMER_IMAGES).remove([uploadedPath]);
+    if (uploadedPath) await removeFiles(db, CUSTOMER_IMAGES, [uploadedPath]);
     dbError(error);
   }
-  return data;
+
+  // Schedules live in their own table; if saving them fails, undo the customer
+  // (and its photo) so a half-saved record is never left behind.
+  try {
+    await syncSchedules(db, data.id, schedules);
+  } catch (e) {
+    await db.from("customers").delete().eq("id", data.id);
+    if (uploadedPath) await removeFiles(db, CUSTOMER_IMAGES, [uploadedPath]);
+    throw e;
+  }
+  return loadCustomer(db, data.id);
 });

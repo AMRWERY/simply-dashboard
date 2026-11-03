@@ -1,7 +1,15 @@
 import type { Database } from "~/types/database.types";
 import type { Customer } from "~/types/home";
 
-export type CustomerRow = Database["public"]["Tables"]["customers"]["Row"];
+export type ScheduleRow = Pick<
+  Database["public"]["Tables"]["customer_schedules"]["Row"],
+  "id" | "scheduled_at" | "done" | "done_at"
+>;
+
+/** A customers row plus its embedded schedules (see CUSTOMER_SELECT on the server). */
+export type CustomerRow = Database["public"]["Tables"]["customers"]["Row"] & {
+  schedules?: ScheduleRow[] | null;
+};
 
 const AVATAR_CLASSES = [
   "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400",
@@ -72,6 +80,14 @@ export const toCustomer = (row: CustomerRow): Customer => {
     createdAt: row.created_at,
     amountDue: Number(row.amount_due),
     amountPaid: Number(row.amount_paid),
+    schedules: (row.schedules ?? [])
+      .map((s) => ({
+        id: s.id,
+        at: s.scheduled_at,
+        done: s.done,
+        doneAt: s.done_at,
+      }))
+      .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()),
   };
 };
 

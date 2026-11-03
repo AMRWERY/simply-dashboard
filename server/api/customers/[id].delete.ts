@@ -1,4 +1,8 @@
-/** DELETE /api/customers/:id — removes the customer and its photo. */
+/**
+ * DELETE /api/customers/:id — removes the customer (its schedules go with it)
+ * and its photo from storage. `imageRemoved` is false if the file could not be
+ * deleted; the reason is in the server log.
+ */
 export default defineEventHandler(async (event) => {
   await requireUser(event);
   const id = routeId(event);
@@ -19,7 +23,7 @@ export default defineEventHandler(async (event) => {
   if (error) dbError(error);
   if (!data.length) httpError(404, "not_found", "Not found");
 
-  const path = existing.image_url?.split(`/${CUSTOMER_IMAGES}/`)[1];
-  if (path) await db.storage.from(CUSTOMER_IMAGES).remove([path]);
-  return { ok: true };
+  const path = storagePath(existing.image_url, CUSTOMER_IMAGES);
+  const imageRemoved = path ? await removeFiles(db, CUSTOMER_IMAGES, [path]) : true;
+  return { ok: true, imageRemoved };
 });

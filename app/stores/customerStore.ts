@@ -1,4 +1,4 @@
-import type { CustomerRow } from "~/utils/customer";
+import type { CustomerRow, ScheduleRow } from "~/utils/customer";
 import type { Customer, CustomerInput } from "~/types/home";
 
 /**
@@ -19,6 +19,9 @@ export const useCustomerStore = defineStore("customers", () => {
     form.append("status", input.status ?? "new");
     form.append("amountDue", String(input.amountDue ?? ""));
     form.append("amountPaid", String(input.amountPaid ?? 0));
+    if (input.schedules) {
+      form.append("schedules", JSON.stringify(input.schedules));
+    }
     if (input.removeImage) form.append("removeImage", "true");
     if (input.imageFile) form.append("image", input.imageFile);
     return form;
@@ -46,6 +49,25 @@ export const useCustomerStore = defineStore("customers", () => {
     if (idx !== -1) items.value[idx] = toCustomer(row);
   };
 
+  /** Marks one scheduled date done (or undoes it) and updates it in place. */
+  const setScheduleDone = async (
+    customerId: string,
+    scheduleId: string,
+    done: boolean,
+  ) => {
+    const row = await api<ScheduleRow>(
+      `/api/customers/${customerId}/schedules/${scheduleId}`,
+      { method: "PATCH", body: { done } },
+    );
+    const entry = items.value
+      .find((c) => c.id === customerId)
+      ?.schedules.find((s) => s.id === scheduleId);
+    if (entry) {
+      entry.done = row.done;
+      entry.doneAt = row.done_at;
+    }
+  };
+
   const remove = async (id: string) => {
     await api(`/api/customers/${id}`, { method: "DELETE" });
     items.value = items.value.filter((c) => c.id !== id);
@@ -56,5 +78,5 @@ export const useCustomerStore = defineStore("customers", () => {
     items.value = [];
   };
 
-  return { items, fetchAll, create, update, remove, reset };
+  return { items, fetchAll, create, update, setScheduleDone, remove, reset };
 });

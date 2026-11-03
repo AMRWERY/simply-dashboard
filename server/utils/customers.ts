@@ -47,9 +47,12 @@ export const parseCustomer = (fields: Record<string, string>) => {
     httpError(400, "paid_exceeds_due", "Paid exceeds due");
   }
 
+  const phone = text(fields.phone, "phone", 30, true)!;
+  if (!isValidPhone(phone)) httpError(400, "invalid_phone", "Invalid phone");
+
   return {
     name: text(fields.name, "name", 120, true)!,
-    phone: text(fields.phone, "phone", 30, true)!,
+    phone: normalizePhone(phone),
     email,
     city: text(fields.city, "city", 80, false),
     status,

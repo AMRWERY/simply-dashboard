@@ -112,11 +112,12 @@
                 v-model="form.phone"
                 name="customer_phone"
                 autocomplete="off"
-                inputmode="tel"
+                inputmode="numeric"
+                maxlength="16"
                 :label="t('phone')"
                 type="tel"
                 placeholder="010 0000 0000"
-                rules="required"
+                :rules="validatePhone"
                 dir="ltr"
                 compact
               />
@@ -162,6 +163,9 @@
                 :options="statusOptions"
                 compact
               />
+
+              <!-- Schedule: any number of dates and times, each markable as done -->
+              <lazy-home-schedule-editor v-model="scheduleDrafts" />
             </div>
 
             <!-- Actions (always visible) -->
@@ -187,7 +191,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { Customer, CustomerInput, Status } from "~/types/home";
+import type {
+  Customer,
+  CustomerInput,
+  ScheduleDraft,
+  Status,
+} from "~/types/home";
 import type { SelectOption } from "~/types/shared/VSelectInput";
 
 const { t } = useI18n();
@@ -216,6 +225,7 @@ const emptyForm = () => ({
 });
 
 const form = ref(emptyForm());
+const scheduleDrafts = ref<ScheduleDraft[]>([]);
 
 onKeyStroke("Escape", () => {
   if (props.isOpen && !props.saving) emit("close");
@@ -283,6 +293,13 @@ const validateAmount = (v: unknown): boolean | string => {
   return true;
 };
 
+// 11 digits, starting with 01 (spaces and dashes are allowed while typing).
+const validatePhone = (v: unknown): boolean | string => {
+  const raw = String(v ?? "").trim();
+  if (!raw) return t("phone_required");
+  return isValidPhone(raw) ? true : t("phone_invalid");
+};
+
 const validateAmountDue = (v: unknown): boolean | string => {
   if (v === "" || v == null) return t("amount_due_required");
   return validateAmount(v);
@@ -311,8 +328,10 @@ watch(
         amountDue: String(customer.amountDue ?? 0),
         amountPaid: customer.amountPaid ? String(customer.amountPaid) : "",
       };
+      scheduleDrafts.value = draftsFromEntries(customer.schedules);
     } else {
       form.value = emptyForm();
+      scheduleDrafts.value = [];
     }
   },
   { immediate: true },
@@ -324,6 +343,7 @@ watch(
     if (open) resetImage();
     if (open && !props.editingCustomer) {
       form.value = emptyForm();
+      scheduleDrafts.value = [];
     }
   },
 );
@@ -337,9 +357,18 @@ const focusFirstError = async () => {
 };
 
 const handleSubmit = () => {
+  // Every schedule row needs both a date and a time.
+  const schedules = draftsToInput(scheduleDrafts.value);
+  if (!schedules) {
+    addToast({ type: "error", message: t("schedule_incomplete") });
+    return;
+  }
+
   const { amountDue, amountPaid, ...rest } = form.value;
   emit("save", {
     ...rest,
+    phone: normalizePhone(rest.phone),
+    schedules,
     amountDue: toAmount(amountDue),
     amountPaid: toAmount(amountPaid),
     imageFile: imageFile.value,

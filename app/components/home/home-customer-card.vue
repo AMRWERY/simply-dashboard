@@ -139,6 +139,53 @@
           </span>
         </p>
       </div>
+
+      <!-- Schedule: the next date that still needs attention -->
+      <div
+        v-if="customer.schedules.length"
+        :class="[
+          'mt-4 flex items-center gap-2.5 rounded-2xl p-3 text-xs transition-colors duration-300',
+          tone.box,
+        ]"
+      >
+        <span
+          :class="['flex h-8 w-8 shrink-0 items-center justify-center rounded-xl', tone.icon]"
+        >
+          <svg
+            class="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path v-if="next" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+            <path v-else d="m5 13 4 4L19 7" />
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="flex flex-wrap items-center gap-x-2 font-bold">
+            <span>{{ next ? t(status) : t("all_done") }}</span>
+            <span v-if="openLeft > 1" class="font-semibold opacity-70">
+              {{ t("more_dates", { count: openLeft - 1 }) }}
+            </span>
+          </p>
+          <p v-if="next" dir="auto" class="mt-0.5 truncate font-medium opacity-80">
+            {{ formatSchedule(next.at, locale) }}
+          </p>
+        </div>
+        <button
+          v-if="next"
+          type="button"
+          class="shrink-0 cursor-pointer rounded-xl px-2.5 py-1.5 font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-95"
+          :class="tone.button"
+          @click="emit('schedule', next.id, true)"
+        >
+          {{ t("mark_done") }}
+        </button>
+      </div>
     </div>
 
     <!-- Actions -->
@@ -187,9 +234,35 @@ const money = (amount: number) => formatMoney(amount, locale.value);
 
 const remaining = computed(() => remainingAmount(props.customer));
 
+// Re-evaluated every 30s so an entry turns "overdue" without a refresh.
+const now = useNowEvery(30_000);
+const next = computed(() => nextOpenEntry(props.customer.schedules));
+const openLeft = computed(() => openCount(props.customer.schedules));
+const status = computed(() => (next.value ? scheduleStatus(next.value, now.value) : "done"));
+
+const TONES = {
+  overdue: {
+    box: "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300",
+    icon: "bg-red-100 dark:bg-red-950/60",
+    button: "bg-red-600 text-white hover:bg-red-700",
+  },
+  upcoming: {
+    box: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300",
+    icon: "bg-indigo-100 dark:bg-indigo-950/60",
+    button: "bg-indigo-600 text-white hover:bg-indigo-700",
+  },
+  done: {
+    box: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300",
+    icon: "bg-emerald-100 dark:bg-emerald-950/60",
+    button: "bg-emerald-600 text-white hover:bg-emerald-700",
+  },
+};
+const tone = computed(() => TONES[status.value]);
+
 const emit = defineEmits<{
   (e: "view", customer: Customer): void;
   (e: "edit", customer: Customer): void;
   (e: "delete", id: string): void;
+  (e: "schedule", scheduleId: string, done: boolean): void;
 }>();
 </script>
