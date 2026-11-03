@@ -10,54 +10,68 @@
       {{ t("customer_growth_description") }}
     </p>
 
-    <!-- Bars grow from the baseline; the latest month is highlighted -->
-    <div class="mt-6 flex h-44 items-end justify-between gap-2 sm:gap-3">
-      <div
-        v-for="(m, i) in months"
-        :key="m.key"
-        class="group flex h-full flex-1 flex-col items-center justify-end gap-2"
-        :title="t('new_customers_count', { count: m.count })"
-      >
-        <span
-          class="text-xs font-extrabold text-gray-700 tabular-nums transition-opacity duration-500 dark:text-gray-300"
-          :class="mounted ? 'opacity-100' : 'opacity-0'"
-          :style="{ transitionDelay: `${600 + i * 80}ms` }"
-          >{{ m.count }}</span
-        >
-        <div class="flex w-full flex-1 items-end">
-          <div
-            :class="[
-              'w-full rounded-t-xl transition-all duration-1000 ease-out group-hover:brightness-110',
-              i === months.length - 1
-                ? 'bg-linear-to-t from-indigo-600 to-indigo-400'
-                : 'bg-linear-to-t from-indigo-300 to-indigo-200 dark:from-indigo-800 dark:to-indigo-700',
-            ]"
-            :style="{
-              height: mounted ? `${barHeight(m.count)}%` : '0%',
-              transitionDelay: `${i * 80}ms`,
-            }"
-          />
-        </div>
-        <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400">{{
-          m.label
-        }}</span>
-      </div>
+    <div class="mt-5 h-52">
+      <Bar :data="chartData" :options="chartOptions" />
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+import { Bar } from "vue-chartjs";
+import type { ChartData, ChartOptions } from "chart.js";
 import type { Customer } from "~/types/home";
 
 const props = defineProps<{ customers: Customer[] }>();
 
 const { locale, t } = useI18n();
-const mounted = useMounted();
+const { colors, tooltip } = useChartTheme();
 
 const months = computed(() => monthlyGrowth(props.customers, locale.value, 6));
-const max = computed(() => Math.max(1, ...months.value.map((m) => m.count)));
 
-// Empty months keep a thin stub so the chart still reads as a chart.
-const barHeight = (count: number) =>
-  count === 0 ? 3 : Math.max(8, (count / max.value) * 100);
+// The latest month is the strong colour; earlier months are soft.
+const chartData = computed<ChartData<"bar">>(() => ({
+  labels: months.value.map((m) => m.label),
+  datasets: [
+    {
+      data: months.value.map((m) => m.count),
+      backgroundColor: months.value.map((_, i) =>
+        i === months.value.length - 1 ? colors.value.indigo : colors.value.indigoSoft,
+      ),
+      hoverBackgroundColor: colors.value.indigo,
+      borderRadius: 10,
+      borderSkipped: false,
+      maxBarThickness: 44,
+    },
+  ],
+}));
+
+const chartOptions = computed<ChartOptions<"bar">>(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 900, easing: "easeOutQuart" },
+  interaction: { mode: "index", intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      ...tooltip.value,
+      callbacks: {
+        title: (items) => items[0]?.label ?? "",
+        label: (ctx) => t("new_customers_count", { count: Number(ctx.raw) }),
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { color: colors.value.text },
+    },
+    y: {
+      beginAtZero: true,
+      border: { display: false },
+      grid: { color: colors.value.grid },
+      ticks: { color: colors.value.text, precision: 0, maxTicksLimit: 5 },
+    },
+  },
+}));
 </script>

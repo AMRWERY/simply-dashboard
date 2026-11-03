@@ -17,50 +17,70 @@
       {{ t("no_city_data") }}
     </p>
 
-    <ul v-else class="mt-5 space-y-4">
-      <li
-        v-for="(row, i) in cities"
-        :key="row.city"
-        class="group -mx-2 rounded-xl px-2 py-1.5 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/40"
-      >
-        <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
-          <span
-            class="flex min-w-0 items-center gap-2 font-bold text-gray-800 dark:text-gray-200"
-          >
-            <span
-              class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-[11px] font-extrabold text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"
-              >{{ i + 1 }}</span
-            >
-            <span class="truncate">{{ row.city }}</span>
-          </span>
-          <span class="shrink-0 font-extrabold text-gray-900 tabular-nums dark:text-white">{{
-            row.count
-          }}</span>
-        </div>
-        <div
-          class="h-2.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
-        >
-          <div
-            class="h-full rounded-full bg-linear-to-r from-indigo-500 to-violet-400 transition-[width,filter] duration-1000 ease-out group-hover:brightness-110"
-            :style="{
-              width: mounted ? `${(row.count / max) * 100}%` : '0%',
-              transitionDelay: `${i * 90}ms`,
-            }"
-          />
-        </div>
-      </li>
-    </ul>
+    <!-- Height grows with the number of cities so bars keep a steady thickness -->
+    <div v-else class="mt-5" :style="{ height: `${cities.length * 44 + 28}px` }">
+      <Bar :data="chartData" :options="chartOptions" />
+    </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+import { Bar } from "vue-chartjs";
+import type { ChartData, ChartOptions } from "chart.js";
 import type { Customer } from "~/types/home";
 
 const props = defineProps<{ customers: Customer[] }>();
 
 const { t } = useI18n();
-const mounted = useMounted();
+const { isRtl, colors, tooltip } = useChartTheme();
 
 const cities = computed(() => cityBreakdown(props.customers, 5));
-const max = computed(() => Math.max(1, ...cities.value.map((c) => c.count)));
+
+const chartData = computed<ChartData<"bar">>(() => ({
+  labels: cities.value.map((c) => c.city),
+  datasets: [
+    {
+      data: cities.value.map((c) => c.count),
+      backgroundColor: colors.value.indigo,
+      hoverBackgroundColor: colors.value.violet,
+      borderRadius: 8,
+      borderSkipped: false,
+      barThickness: 18,
+    },
+  ],
+}));
+
+const chartOptions = computed<ChartOptions<"bar">>(() => ({
+  indexAxis: "y",
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 900, easing: "easeOutQuart" },
+  interaction: { mode: "nearest", axis: "y", intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      ...tooltip.value,
+      callbacks: {
+        title: (items) => items[0]?.label ?? "",
+        label: (ctx) => t("total_customers", { count: Number(ctx.raw) }),
+      },
+    },
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      // Arabic reads right to left, so the bars grow from the right edge.
+      reverse: isRtl.value,
+      border: { display: false },
+      grid: { color: colors.value.grid },
+      ticks: { color: colors.value.text, precision: 0, maxTicksLimit: 5 },
+    },
+    y: {
+      position: isRtl.value ? "right" : "left",
+      border: { display: false },
+      grid: { display: false },
+      ticks: { color: colors.value.text },
+    },
+  },
+}));
 </script>
