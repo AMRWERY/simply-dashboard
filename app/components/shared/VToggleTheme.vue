@@ -5,9 +5,9 @@
     :aria-label="
       isMounted
         ? isDark
-          ? 'Switch to light mode'
-          : 'Switch to dark mode'
-        : 'Toggle theme'
+          ? t('switch_to_light_mode')
+          : t('switch_to_dark_mode')
+        : t('toggle_theme')
     "
     :aria-pressed="isMounted ? isDark : false"
     @click="toggle($event)"
@@ -39,6 +39,8 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 const { isDark, toggle } = useTheme();
 
 // Guards against SSR hydration mismatches:

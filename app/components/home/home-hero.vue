@@ -23,27 +23,31 @@
       </div>
       <div>
         <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-2xl font-extrabold tracking-tight">Customers</h1>
+          <h1 class="text-2xl font-extrabold tracking-tight">
+            {{ t("customers") }}
+          </h1>
           <span
             class="rounded-full bg-amber-400/90 px-3 py-0.5 text-xs font-bold text-amber-950"
           >
-            {{ totalCustomers }} Customers
+            {{ t("total_customers", { count: totalCustomers }) }}
           </span>
         </div>
         <p class="mt-1 text-sm text-indigo-900/70 dark:text-indigo-200/80">
-          Manage accounts and active communication across your organization
+          {{ t("customers_hero_description") }}
         </p>
       </div>
     </div>
 
     <div class="relative flex flex-wrap items-center gap-3">
       <!-- Add Customer button -->
-      <LazyVButton @click="emit('add')"> Add Customer </LazyVButton>
+      <LazyVButton @click="emit('add')"> {{ t("add_customer") }} </LazyVButton>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 defineProps<{
   totalCustomers: number;
 }>();

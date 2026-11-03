@@ -14,7 +14,6 @@
             :aria-labelledby="dialogTitleId"
             class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 text-center shadow-2xl transition-all duration-200 dark:bg-[#1e1f2b] dark:text-white"
           >
-
             <!-- Danger Warning Icon -->
             <div
               class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400 shadow-md shadow-red-500/10"
@@ -31,23 +30,23 @@
               :id="dialogTitleId"
               class="mt-4 text-xl font-extrabold text-gray-900 dark:text-white"
             >
-              {{ title }}
+              {{ title || t("delete_customer") }}
             </h3>
 
             <!-- Message / Item Name -->
             <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
               <slot>
                 <p>
-                  Are you sure you want to delete
+                  {{ t("delete_customer_confirm") }}
                   <span
                     v-if="itemName"
                     class="font-bold text-gray-800 dark:text-gray-200"
                   >
                     "{{ itemName }}"</span
-                  >?
+                  >{{ locale === "ar" ? "؟" : "?" }}
                 </p>
                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                  {{ description }}
+                  {{ description || t("delete_irreversible") }}
                 </p>
               </slot>
             </div>
@@ -60,7 +59,7 @@
                 :disabled="isLoading"
                 @click="emit('close')"
               >
-                {{ cancelLabel }}
+                {{ cancelLabel || t("cancel") }}
               </LazyVButton>
               <LazyVButton
                 variant="danger"
@@ -68,7 +67,7 @@
                 :loading="isLoading"
                 @click="emit('confirm')"
               >
-                {{ confirmLabel }}
+                {{ confirmLabel || t("delete") }}
               </LazyVButton>
             </div>
           </div>
@@ -79,6 +78,8 @@
 </template>
 
 <script lang="ts" setup>
+const { locale, t } = useI18n();
+
 const props = withDefaults(
   defineProps<{
     isOpen: boolean;
@@ -90,14 +91,13 @@ const props = withDefaults(
     isLoading?: boolean;
   }>(),
   {
-    title: "Delete Customer",
+    title: undefined,
     itemName: undefined,
-    description:
-      "This action cannot be undone and will permanently remove this record.",
-    confirmLabel: "Delete",
-    cancelLabel: "Cancel",
+    description: undefined,
+    confirmLabel: undefined,
+    cancelLabel: undefined,
     isLoading: false,
-  }
+  },
 );
 
 const emit = defineEmits<{

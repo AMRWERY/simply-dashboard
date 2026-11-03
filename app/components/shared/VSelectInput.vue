@@ -37,8 +37,8 @@
           errorMessage
             ? '!border-red-400 focus:!border-red-400 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-500/20'
             : isOpen
-            ? '!border-indigo-500 ring-4 ring-indigo-100 dark:!border-indigo-400 dark:ring-indigo-500/20'
-            : '!border-transparent hover:!border-gray-300 focus:!border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:!border-gray-700/60 dark:hover:!border-gray-600 dark:focus:!border-indigo-400 dark:focus:ring-indigo-500/20',
+              ? '!border-indigo-500 ring-4 ring-indigo-100 dark:!border-indigo-400 dark:ring-indigo-500/20'
+              : '!border-transparent hover:!border-gray-300 focus:!border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:!border-gray-700/60 dark:hover:!border-gray-600 dark:focus:!border-indigo-400 dark:focus:ring-indigo-500/20',
         ]"
       >
         <!-- Selected value display -->
@@ -61,7 +61,11 @@
                 : 'text-gray-400 dark:text-gray-500',
             ]"
           >
-            {{ selectedOption ? selectedOption.label : placeholder }}
+            {{
+              selectedOption
+                ? selectedOption.label
+                : placeholder || t("select_option")
+            }}
           </span>
         </div>
 
@@ -69,7 +73,9 @@
         <template #trailing-icon>
           <span
             class="pointer-events-none ms-2 flex items-center text-gray-400 transition-transform duration-200 dark:text-gray-400"
-            :class="{ 'rotate-180 text-indigo-600 dark:text-indigo-400': isOpen }"
+            :class="{
+              'rotate-180 text-indigo-600 dark:text-indigo-400': isOpen,
+            }"
           >
             <svg
               class="h-4 w-4"
@@ -110,8 +116,8 @@
               opt.disabled
                 ? 'cursor-not-allowed opacity-40'
                 : currentValue === opt.value
-                ? 'bg-indigo-50 font-bold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300'
-                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/80 dark:hover:text-white',
+                  ? 'bg-indigo-50 font-bold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300'
+                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/80 dark:hover:text-white',
             ]"
             @click="selectOption(opt)"
           >
@@ -169,6 +175,8 @@
 <script lang="ts" setup>
 import type { SelectOption } from "~/types/shared/VSelectInput";
 
+const { t } = useI18n();
+
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
@@ -191,12 +199,12 @@ const props = withDefaults(
     modelValue: null,
     name: undefined,
     label: undefined,
-    placeholder: "Select option",
+    placeholder: undefined,
     disabled: false,
     hint: undefined,
     rules: undefined,
     compact: false,
-  }
+  },
 );
 
 const emit = defineEmits<{
@@ -210,7 +218,7 @@ const isOpen = ref(false);
 const selectId = computed(() =>
   props.name
     ? `v-select-${props.name}`
-    : `v-select-${Math.random().toString(36).slice(2, 7)}`
+    : `v-select-${Math.random().toString(36).slice(2, 7)}`,
 );
 
 // Normalize options to SelectOption[]
@@ -246,7 +254,7 @@ const errorMessage = computed(() => {
 
 const selectedOption = computed(() => {
   return normalizedOptions.value.find(
-    (opt) => opt.value === currentValue.value
+    (opt) => opt.value === currentValue.value,
   );
 });
 

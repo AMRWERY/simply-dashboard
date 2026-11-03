@@ -14,7 +14,9 @@
             class="flex shrink-0 items-center justify-center border-b border-gray-100 pb-3 dark:border-gray-800"
           >
             <h2 class="text-base font-extrabold sm:text-lg">
-              {{ editingCustomer ? "Update Customer" : "Add New Customer" }}
+              {{
+                editingCustomer ? t("update_customer") : t("add_new_customer")
+              }}
             </h2>
           </div>
 
@@ -40,7 +42,9 @@
                   <!-- The photo itself is the button: click to upload / change -->
                   <button
                     type="button"
-                    :aria-label="previewUrl ? 'Change photo' : 'Upload photo'"
+                    :aria-label="
+                      previewUrl ? t('change_photo') : t('upload_photo')
+                    "
                     class="group relative flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-gray-100 text-xs font-bold text-gray-400 outline-none transition-all hover:ring-4 hover:ring-indigo-200 focus-visible:ring-4 focus-visible:ring-indigo-300 dark:bg-gray-800 dark:hover:ring-indigo-900"
                     @click="fileInput?.click()"
                   >
@@ -49,16 +53,18 @@
                         v-if="previewUrl"
                         :key="previewUrl"
                         :src="previewUrl"
-                        alt="Customer photo preview"
+                        :alt="t('customer_photo_preview')"
                         class="h-full w-full object-cover"
                       />
-                      <span v-else class="px-2 text-center">Upload photo</span>
+                      <span v-else class="px-2 text-center">{{
+                        t("upload_photo")
+                      }}</span>
                     </Transition>
                     <span
                       v-if="previewUrl"
                       class="absolute inset-0 flex items-center justify-center bg-black/50 text-[11px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                     >
-                      Change
+                      {{ t("change") }}
                     </span>
                   </button>
 
@@ -66,7 +72,7 @@
                   <button
                     v-if="previewUrl"
                     type="button"
-                    aria-label="Remove photo"
+                    :aria-label="t('remove_photo')"
                     class="absolute -end-2 -top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700"
                     @click="clearImage"
                   >
@@ -79,8 +85,8 @@
               <LazyVInput
                 v-model="form.name"
                 name="name"
-                label="Customer Name"
-                placeholder="e.g. Sultan Al-Ghamdi"
+                :label="t('customer_name')"
+                :placeholder="t('customer_name_placeholder')"
                 rules="required"
                 compact
               />
@@ -89,7 +95,7 @@
               <LazyVInput
                 v-model="form.email"
                 name="email"
-                label="Email"
+                :label="t('email')"
                 type="email"
                 placeholder="example@example.com"
                 rules="email"
@@ -101,7 +107,7 @@
               <LazyVInput
                 v-model="form.phone"
                 name="phone"
-                label="Phone"
+                :label="t('phone')"
                 type="tel"
                 placeholder="+20 102 000 0000"
                 rules="required"
@@ -112,8 +118,8 @@
               <!-- City -->
               <LazyVInput
                 v-model="form.city"
-                label="City"
-                placeholder="Cairo, Alexandria, etc."
+                :label="t('city')"
+                :placeholder="t('city_placeholder')"
                 compact
               />
 
@@ -121,7 +127,7 @@
               <LazyVInput
                 v-model="form.amountDue"
                 name="amountDue"
-                label="Amount due (EGP)"
+                :label="t('amount_due_egp')"
                 type="number"
                 placeholder="0"
                 :rules="validateAmountDue"
@@ -133,10 +139,10 @@
               <LazyVInput
                 v-model="form.amountPaid"
                 name="amountPaid"
-                label="Amount paid so far (EGP)"
+                :label="t('amount_paid_egp')"
                 type="number"
                 placeholder="0"
-                hint="The remaining amount is calculated automatically"
+                :hint="t('remaining_calculated_hint')"
                 :rules="validatePaid"
                 dir="ltr"
                 compact
@@ -145,7 +151,7 @@
               <!-- Status -->
               <LazyVSelectInput
                 v-model="form.status"
-                label="Status"
+                :label="t('status')"
                 :options="statusOptions"
                 compact
               />
@@ -154,7 +160,7 @@
             <!-- Actions (always visible) -->
             <div class="mt-3 flex shrink-0 justify-end gap-2.5 pt-2">
               <LazyVButton variant="secondary" size="sm" @click="emit('close')">
-                Cancel
+                {{ t("cancel") }}
               </LazyVButton>
 
               <LazyVButton
@@ -163,7 +169,7 @@
                 size="sm"
                 :loading="saving"
               >
-                {{ editingCustomer ? "Save Changes" : "Create Customer" }}
+                {{ editingCustomer ? t("save_changes") : t("create_customer") }}
               </LazyVButton>
             </div>
           </Form>
@@ -176,6 +182,8 @@
 <script lang="ts" setup>
 import type { Customer, CustomerInput, Status } from "~/types/home";
 import type { SelectOption } from "~/types/shared/VSelectInput";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   isOpen: boolean;
@@ -237,7 +245,7 @@ const onFileChange = (e: Event) => {
   if (!file) return;
   const problem = validateCustomerImage(file);
   if (problem) {
-    addToast({ type: "error", message: problem });
+    addToast({ type: "error", message: t(problem) });
     input.value = "";
     return;
   }
@@ -263,21 +271,21 @@ const toAmount = (v: unknown): number =>
 const validateAmount = (v: unknown): boolean | string => {
   if (v === "" || v == null) return true;
   const n = Number(v);
-  if (!Number.isFinite(n)) return "Enter a valid number";
-  if (n < 0) return "Amount can't be negative";
+  if (!Number.isFinite(n)) return t("enter_valid_number");
+  if (n < 0) return t("amount_cannot_be_negative");
   return true;
 };
 
 const validateAmountDue = (v: unknown): boolean | string => {
-  if (v === "" || v == null) return "Amount due is required";
+  if (v === "" || v == null) return t("amount_due_required");
   return validateAmount(v);
 };
 
-const validatePaid =(v: unknown): boolean | string => {
+const validatePaid = (v: unknown): boolean | string => {
   const base = validateAmount(v);
   if (base !== true) return base;
   if (toAmount(v) > toAmount(form.value.amountDue)) {
-    return "Paid amount can't be more than the amount due";
+    return t("paid_cannot_exceed_due");
   }
   return true;
 };

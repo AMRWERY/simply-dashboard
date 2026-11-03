@@ -48,10 +48,10 @@
             <h1
               class="mt-6 text-3xl font-extrabold tracking-tight dark:text-white"
             >
-              Sign In
+              {{ t("sign_in") }}
             </h1>
             <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Access your management portal
+              {{ t("access_management_portal") }}
             </p>
           </div>
 
@@ -60,7 +60,7 @@
             <!-- Email -->
             <LazyVInput
               name="email"
-              label="Email"
+              :label="t('email')"
               type="email"
               placeholder="admin@company.com"
               icon="email-icon"
@@ -71,7 +71,7 @@
             <!-- Password -->
             <LazyVInput
               name="password"
-              label="Password"
+              :label="t('password')"
               type="password"
               placeholder="••••••••"
               rules="required|min:8"
@@ -115,7 +115,7 @@
               <span
                 class="text-sm font-semibold text-gray-700 dark:text-gray-300 select-none cursor-pointer"
                 @click="remember = !remember"
-                >Remember me</span
+                >{{ t("remember_me") }}</span
               >
             </div>
 
@@ -128,7 +128,7 @@
               :loading="isLoading"
               class="mt-2 py-4 text-base sm:text-lg"
             >
-              {{ isLoading ? "Signing in..." : "Sign In" }}
+              {{ isLoading ? t("signing_in") : t("sign_in") }}
             </LazyVButton>
           </Form>
         </div>
@@ -143,16 +143,19 @@
         icon-class="!text-green-500"
         class="mt-8 text-sm font-semibold !text-indigo-700 hover:underline dark:!text-indigo-300"
       >
-        Having trouble? Contact support
+        {{ t("contact_support") }}
       </LazyVButton>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n();
+
 const authStore = useAuthStore();
 const { add: addToast } = useToast();
 const localePath = useLocalePath();
+
 const remember = ref(true);
 const isLoading = ref(false);
 
@@ -167,7 +170,7 @@ const submit = async (values: Record<string, string>) => {
     );
     await navigateTo(localePath("/"));
   } catch {
-    addToast({ type: "error", message: "Incorrect email or password" });
+    addToast({ type: "error", message: t("incorrect_email_or_password") });
   } finally {
     isLoading.value = false;
   }

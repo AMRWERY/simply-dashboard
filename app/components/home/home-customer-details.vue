@@ -12,7 +12,6 @@
           :aria-labelledby="titleId"
           class="details-panel relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl dark:bg-[#1e1f2b] dark:text-white"
         >
-
           <!-- Identity -->
           <div class="flex items-center gap-4">
             <div
@@ -71,14 +70,14 @@
 
           <div class="mt-6 grid grid-cols-2 gap-3">
             <LazyVButton variant="secondary" size="md" @click="emit('close')">
-              Close
+              {{ t("close") }}
             </LazyVButton>
             <LazyVButton
               variant="primary"
               size="md"
               @click="emit('edit', customer)"
             >
-              Update
+              {{ t("update") }}
             </LazyVButton>
           </div>
         </div>
@@ -89,6 +88,8 @@
 
 <script lang="ts" setup>
 import type { Customer, Status } from "~/types/home";
+
+const { locale, t } = useI18n();
 
 const props = defineProps<{
   isOpen: boolean;
@@ -105,20 +106,20 @@ onKeyStroke("Escape", () => {
   if (props.isOpen) emit("close");
 });
 
-const { locale } = useI18n();
 const money = (amount: number) => formatMoney(amount, locale.value);
+
 const titleId = `v-customer-details-${Math.random().toString(36).slice(2, 7)}`;
 
 const rows = computed(() => {
   const c = props.customer;
   if (!c) return [];
   return [
-    { label: "Phone", value: c.phone },
-    { label: "Email", value: c.email || "—" },
-    { label: "City", value: c.city || "—" },
-    { label: "Amount due", value: money(c.amountDue) },
-    { label: "Paid", value: money(c.amountPaid) },
-    { label: "Remaining", value: money(remainingAmount(c)) },
+    { label: t("phone"), value: c.phone },
+    { label: t("email"), value: c.email || "—" },
+    { label: t("city"), value: c.city || "—" },
+    { label: t("amount_due"), value: money(c.amountDue) },
+    { label: t("paid"), value: money(c.amountPaid) },
+    { label: t("remaining"), value: money(remainingAmount(c)) },
   ];
 });
 </script>
@@ -128,6 +129,7 @@ const rows = computed(() => {
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -138,6 +140,7 @@ const rows = computed(() => {
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.2s ease;
 }
+
 .fade-enter-from .details-panel,
 .fade-leave-to .details-panel {
   opacity: 0;

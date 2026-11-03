@@ -1,5 +1,7 @@
-/** Shared visibility state for the full-screen overlay shown while switching locale. */
+/** Shared state for the full-screen overlay shown while switching locale. */
 export function useLocaleOverlay() {
   const visible = useState("locale-overlay", () => false);
-  return { visible };
+  /** Locale we're switching TO ("en" | "ar"), so the overlay can point at it. */
+  const target = useState<"en" | "ar">("locale-overlay-target", () => "ar");
+  return { visible, target };
 }

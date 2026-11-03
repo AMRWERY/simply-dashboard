@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-// const { t } = useI18n();
+const { t } = useI18n();
 
 definePageMeta({
   layout: "auth",
@@ -13,8 +13,8 @@ definePageMeta({
 });
 
 useSeoPage({
-  title: () => "Sign In",
-  description: () => "Sign In",
+  title: () => t("sign_in_page"),
+  description: () => t("access_management_portal"),
   private: true,
 });
 </script>

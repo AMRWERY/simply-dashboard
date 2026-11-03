@@ -7,9 +7,11 @@
     <div class="relative flex-1 lg:max-w-md">
       <input
         :value="searchQuery"
-        @input="emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
+        @input="
+          emit('update:searchQuery', ($event.target as HTMLInputElement).value)
+        "
         type="search"
-        placeholder="Search by name, mobile, or email..."
+        :placeholder="t('search_customers_placeholder')"
         class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-3 ps-11 pe-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 dark:border-gray-700 dark:bg-gray-800/60 dark:text-white dark:focus:border-indigo-400 dark:focus:bg-gray-800 dark:focus:ring-indigo-950"
       />
       <span
@@ -27,18 +29,22 @@
     <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
       <LazyVButton
         v-for="filter in filters"
-        :key="filter.label"
-        :variant="activeFilter === filter.label ? 'primary' : 'ghost'"
+        :key="filter.key"
+        :variant="activeFilter === filter.key ? 'primary' : 'ghost'"
         size="md"
         class="shrink-0"
-        :class="activeFilter !== filter.label ? 'bg-gray-100 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700' : ''"
-        @click="emit('update:activeFilter', filter.label)"
+        :class="
+          activeFilter !== filter.key
+            ? 'bg-gray-100 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700'
+            : ''
+        "
+        @click="emit('update:activeFilter', filter.key)"
       >
         <span>{{ filter.label }}</span>
         <span
           :class="[
             'ms-1 rounded-full px-2 py-0.5 text-[11px] font-bold',
-            activeFilter === filter.label
+            activeFilter === filter.key
               ? 'bg-white/20 text-white'
               : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
           ]"
@@ -52,6 +58,8 @@
 
 <script lang="ts" setup>
 import type { Filter } from "~/types/home";
+
+const { t } = useI18n();
 
 defineProps<{
   searchQuery: string;

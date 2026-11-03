@@ -8,7 +8,7 @@
         variant="secondary"
         size="icon-md"
         icon="menu-solid-icon"
-        aria-label="Toggle mobile menu"
+        :aria-label="t('toggle_mobile_menu')"
         class="md:hidden"
         @click="emit('toggle-menu')"
       />
@@ -30,6 +30,8 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 const emit = defineEmits<{
   (e: "toggle-menu"): void;
 }>();

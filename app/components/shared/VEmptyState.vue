@@ -13,7 +13,7 @@
         <LazyVIcon
           v-if="icon"
           :name="icon"
-          :alt="title || 'empty state'"
+          :alt="title || t('no_data_found')"
           :class="iconClass"
         />
       </div>
@@ -21,11 +21,8 @@
 
     <!-- Title -->
     <slot name="title">
-      <h3
-        v-if="title"
-        class="mt-4 text-base font-bold text-gray-900 dark:text-white"
-      >
-        {{ title }}
+      <h3 class="mt-4 text-base font-bold text-gray-900 dark:text-white">
+        {{ title || t("no_data_found") }}
       </h3>
     </slot>
 
@@ -54,6 +51,8 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 withDefaults(
   defineProps<{
     /** VIcon filename without extension */
@@ -71,13 +70,13 @@ withDefaults(
   }>(),
   {
     icon: "search-icon",
-    title: "No data found",
+    title: undefined,
     description: undefined,
     actionLabel: undefined,
     iconClass: "h-8 w-8 text-indigo-600 dark:text-indigo-400",
     iconBgClass:
       "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400",
-  }
+  },
 );
 
 const emit = defineEmits<{

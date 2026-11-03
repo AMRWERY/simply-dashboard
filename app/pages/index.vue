@@ -76,11 +76,13 @@ import type {
 } from "~/types/home";
 import type { SelectOption } from "~/types/shared/VSelectInput";
 
-const statusOptions: SelectOption[] = [
-  { label: "Active", value: "active", badgeClass: "bg-emerald-500" },
-  { label: "New", value: "new", badgeClass: "bg-amber-500" },
-  { label: "Follow Up", value: "follow-up", badgeClass: "bg-orange-500" },
-];
+const { t } = useI18n();
+
+const statusOptions = computed<SelectOption[]>(() => [
+  { label: t("active"), value: "active", badgeClass: "bg-emerald-500" },
+  { label: t("new"), value: "new", badgeClass: "bg-amber-500" },
+  { label: t("follow_up"), value: "follow-up", badgeClass: "bg-orange-500" },
+]);
 
 const customerStore = useCustomerStore();
 const { add: addToast } = useToast();
@@ -92,32 +94,34 @@ onMounted(async () => {
     await customerStore.fetchAll();
   } catch (e) {
     console.error("[customers] load failed", e);
-    addToast({ type: "error", message: "Could not load customers, try again" });
+    addToast({ type: "error", message: t("customers_load_failed") });
   } finally {
     isLoading.value = false;
   }
 });
 
 const searchQuery = ref("");
-const activeFilter = ref("All");
+const activeFilter = ref("all");
 
-const statusStyles: Record<Status, { label: string; class: string }> = {
-  active: {
-    label: "Active",
-    class:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
-  },
-  new: {
-    label: "New",
-    class:
-      "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300",
-  },
-  "follow-up": {
-    label: "Follow Up",
-    class:
-      "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300",
-  },
-};
+const statusStyles = computed<Record<Status, { label: string; class: string }>>(
+  () => ({
+    active: {
+      label: t("active"),
+      class:
+        "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+    },
+    new: {
+      label: t("new"),
+      class:
+        "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300",
+    },
+    "follow-up": {
+      label: t("follow_up"),
+      class:
+        "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300",
+    },
+  }),
+);
 
 const computedFilters = computed<Filter[]>(() => {
   const activeCount = customers.value.filter(
@@ -129,22 +133,18 @@ const computedFilters = computed<Filter[]>(() => {
   ).length;
 
   return [
-    { label: "All", count: customers.value.length },
-    { label: "Active", count: activeCount },
-    { label: "New", count: newCount },
-    { label: "Follow Up", count: followUpCount },
+    { key: "all", label: t("all"), count: customers.value.length },
+    { key: "active", label: t("active"), count: activeCount },
+    { key: "new", label: t("new"), count: newCount },
+    { key: "follow-up", label: t("follow_up"), count: followUpCount },
   ];
 });
 
 const visibleCustomers = computed(() => {
   let list = customers.value;
 
-  if (activeFilter.value === "Active") {
-    list = list.filter((c) => c.status === "active");
-  } else if (activeFilter.value === "New") {
-    list = list.filter((c) => c.status === "new");
-  } else if (activeFilter.value === "Follow Up") {
-    list = list.filter((c) => c.status === "follow-up");
+  if (activeFilter.value !== "all") {
+    list = list.filter((c) => c.status === activeFilter.value);
   }
 
   const query = searchQuery.value.trim().toLowerCase();
@@ -183,7 +183,7 @@ watch(
 
 const resetFilters = () => {
   searchQuery.value = "";
-  activeFilter.value = "All";
+  activeFilter.value = "all";
 };
 
 // Delete Dialog State & Handlers
@@ -213,13 +213,13 @@ const confirmDeleteCustomer = async () => {
     await customerStore.remove(target.id);
     addToast({
       type: "success",
-      message: `Customer "${target.name}" deleted successfully`,
+      message: t("customer_deleted", { name: target.name }),
     });
   } catch (e) {
     console.error("[customers] delete failed", e);
     addToast({
       type: "error",
-      message: "Could not delete the customer, try again",
+      message: t("customer_delete_failed"),
     });
   } finally {
     isDeleting.value = false;
@@ -272,10 +272,10 @@ const handleSaveCustomer = async (data: CustomerInput) => {
   try {
     if (selectedCustomer.value) {
       await customerStore.update(selectedCustomer.value.id, data);
-      addToast({ type: "success", message: "Customer updated successfully" });
+      addToast({ type: "success", message: t("customer_updated") });
     } else {
       await customerStore.create(data);
-      addToast({ type: "success", message: "Customer added successfully" });
+      addToast({ type: "success", message: t("customer_added") });
     }
     closeModal();
   } catch (e) {
@@ -283,7 +283,7 @@ const handleSaveCustomer = async (data: CustomerInput) => {
     console.error("[customers] save failed", e);
     addToast({
       type: "error",
-      message: "Could not save the customer, try again",
+      message: t("customer_save_failed"),
     });
   } finally {
     isSaving.value = false;
@@ -293,5 +293,11 @@ const handleSaveCustomer = async (data: CustomerInput) => {
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
+});
+
+useSeoPage({
+  title: () => t("home_page"),
+  description: () => t("customers_hero_description"),
+  private: true,
 });
 </script>

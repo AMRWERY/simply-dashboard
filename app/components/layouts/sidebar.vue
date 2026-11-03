@@ -68,7 +68,7 @@
           <p
             class="mb-3 px-3 text-[11px] font-bold tracking-wider text-gray-400 uppercase dark:text-gray-500"
           >
-            Menu
+            {{ t("menu") }}
           </p>
 
           <!-- Route 1: Customers -->
@@ -88,7 +88,7 @@
               alt="persons"
               class="h-5 w-5 shrink-0 transition-transform group-hover:scale-110"
             />
-            <span>Customers</span>
+            <span>{{ t("customers") }}</span>
           </nuxt-link-locale>
 
           <!-- Route 2: Reports -->
@@ -125,7 +125,7 @@
             type="button"
             class="group relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-xs font-extrabold text-white shadow-md shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500"
             :disabled="isUploadingAvatar"
-            aria-label="Change profile picture"
+            :aria-label="t('change_profile_picture')"
             @click="avatarInput?.click()"
           >
             <img
@@ -196,7 +196,7 @@
           block
           @click="handleLogout"
         >
-          Logout
+          {{ t("logout") }}
         </LazyVButton>
       </div>
     </aside>
@@ -204,22 +204,24 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+const route = useRoute();
+const localePath = useLocalePath();
+
+const auth = useAuthStore();
+
 const props = withDefaults(
   defineProps<{
     modelValue?: boolean;
   }>(),
   {
     modelValue: false,
-  }
+  },
 );
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
-
-const auth = useAuthStore();
-const localePath = useLocalePath();
-const route = useRoute();
 
 const userName = computed(() => auth.user?.name || "Ahmed Al-Ashraf");
 const userEmail = computed(() => auth.user?.email || "ahmed@crm.sa");
@@ -264,10 +266,10 @@ const onAvatarSelected = async (event: Event) => {
   } catch (e) {
     const message =
       e instanceof Error && e.message === "invalid-type"
-        ? "Please choose a JPG, PNG or WebP image"
+        ? t("invalid_image_type")
         : e instanceof Error && e.message === "too-large"
-          ? "Image must be 2 MB or smaller"
-          : "Could not upload the image, try again";
+          ? t("image_too_large")
+          : t("upload_image_failed");
     useToast().add({ type: "error", message });
   } finally {
     isUploadingAvatar.value = false;
@@ -278,7 +280,7 @@ const handleLogout = async () => {
   try {
     await auth.logout();
   } catch {
-    useToast().add({ type: "error", message: "Could not sign out, try again" });
+    useToast().add({ type: "error", message: t("logout_failed") });
     return;
   }
   await navigateTo(localePath("/auth"));

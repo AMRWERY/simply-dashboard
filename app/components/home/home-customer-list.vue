@@ -23,9 +23,9 @@
       <LazyVEmptyState
         v-if="customers.length === 0"
         icon="search-icon"
-        title="No customers found"
-        description="Try adjusting your search query or switching filters."
-        action-label="Reset filters"
+        :title="t('no_customers_found')"
+        :description="t('no_customers_found_description')"
+        :action-label="t('reset_filters')"
         @action="emit('reset')"
       />
     </Transition>
@@ -34,6 +34,8 @@
 
 <script lang="ts" setup>
 import type { Customer, Status } from "~/types/home";
+
+const { t } = useI18n();
 
 defineProps<{
   customers: Customer[];
@@ -56,15 +58,18 @@ const emit = defineEmits<{
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: calc(var(--i, 0) * 45ms);
 }
+
 .card-leave-active {
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
 }
+
 .card-enter-from {
   opacity: 0;
   transform: translateY(14px) scale(0.97);
 }
+
 .card-leave-to {
   opacity: 0;
   transform: scale(0.95);
@@ -75,6 +80,7 @@ const emit = defineEmits<{
     opacity 0.3s ease,
     transform 0.3s ease;
 }
+
 .empty-enter-from {
   opacity: 0;
   transform: translateY(8px);

@@ -2,7 +2,7 @@
   <LazyVButton
     variant="soft"
     size="sm"
-    :aria-label="`Switch to ${nextLocale.name}`"
+    :aria-label="t('switch_language', { name: nextLocale.name })"
     @click="switchLocale"
     class="!rounded-full px-4 py-2"
   >
@@ -19,11 +19,11 @@
 <script lang="ts" setup>
 import type { LocaleMeta } from "~/types/shared/VToggleLocale";
 
-const { locale, setLocale, locales } = useI18n();
-const localePath = useLocalePath();
+const { locale, setLocale, locales, t } = useI18n();
 const router = useRouter();
+const localePath = useLocalePath();
 
-const { visible: overlayVisible } = useLocaleOverlay();
+const { visible: overlayVisible, target: overlayTarget } = useLocaleOverlay();
 
 const localeMeta: Record<string, LocaleMeta> = {
   en: { code: "en", flag: "EN", name: "English", label: "EN", dir: "ltr" },
@@ -33,7 +33,7 @@ const localeMeta: Record<string, LocaleMeta> = {
 // The locale we'll switch TO when the button is clicked
 const nextLocale = computed<LocaleMeta>(() => {
   const next = (locales.value as { code: string }[]).find(
-    (l) => l.code !== locale.value
+    (l) => l.code !== locale.value,
   );
   return localeMeta[next?.code ?? "en"] ?? localeMeta["en"];
 });
@@ -44,6 +44,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function switchLocale() {
   if (overlayVisible.value) return;
   const target = nextLocale.value.code;
+  overlayTarget.value = target === "ar" ? "ar" : "en";
 
   // Cover the screen first so the language/direction flip happens unseen
   overlayVisible.value = true;

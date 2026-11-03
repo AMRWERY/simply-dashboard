@@ -18,7 +18,11 @@
               :alt="customer.name"
               loading="lazy"
               class="h-full w-full object-cover opacity-0 transition-opacity duration-300"
-              @load="($event.target as HTMLImageElement).classList.remove('opacity-0')"
+              @load="
+                ($event.target as HTMLImageElement).classList.remove(
+                  'opacity-0',
+                )
+              "
             />
             <template v-else>{{ customer.initials }}</template>
           </div>
@@ -65,7 +69,7 @@
             class="h-5 w-5 shrink-0 text-indigo-500"
           />
           <span class="font-bold text-gray-700 dark:text-gray-300">
-            Phone:
+            {{ t("phone") }}:
           </span>
           <span dir="ltr" class="font-medium select-all">{{
             customer.phone
@@ -82,7 +86,7 @@
             class="h-5 w-5 shrink-0 text-indigo-500"
           />
           <span class="font-bold text-gray-700 dark:text-gray-300">
-            Email:
+            {{ t("email") }}:
           </span>
           <span dir="ltr" class="truncate font-medium select-all">{{
             customer.email
@@ -97,15 +101,20 @@
       >
         <p class="flex items-center justify-between gap-2">
           <span class="font-bold text-gray-700 dark:text-gray-300">
-            Amount due
+            {{ t("amount_due") }}
           </span>
           <span dir="ltr" class="font-medium text-gray-700 dark:text-gray-300">
             {{ money(customer.amountDue) }}
           </span>
         </p>
         <p class="flex items-center justify-between gap-2">
-          <span class="font-bold text-gray-700 dark:text-gray-300">Paid</span>
-          <span dir="ltr" class="font-medium text-emerald-600 dark:text-emerald-400">
+          <span class="font-bold text-gray-700 dark:text-gray-300">{{
+            t("paid")
+          }}</span>
+          <span
+            dir="ltr"
+            class="font-medium text-emerald-600 dark:text-emerald-400"
+          >
             {{ money(customer.amountPaid) }}
           </span>
         </p>
@@ -113,7 +122,7 @@
           class="flex items-center justify-between gap-2 border-t border-dashed border-gray-200 pt-1.5 dark:border-gray-700"
         >
           <span class="font-bold text-gray-700 dark:text-gray-300">
-            Remaining
+            {{ t("remaining") }}
           </span>
           <span
             v-if="remaining > 0"
@@ -126,7 +135,7 @@
             v-else
             class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-extrabold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
           >
-            Fully paid
+            {{ t("fully_paid") }}
           </span>
         </p>
       </div>
@@ -142,7 +151,7 @@
         class="col-span-2"
         @click="emit('view', customer)"
       >
-        View details
+        {{ t("view_details") }}
       </LazyVButton>
       <LazyVButton
         variant="soft"
@@ -150,7 +159,7 @@
         block
         @click="emit('edit', customer)"
       >
-        Update
+        {{ t("update") }}
       </LazyVButton>
       <LazyVButton
         variant="danger-soft"
@@ -158,7 +167,7 @@
         block
         @click="emit('delete', customer.id)"
       >
-        Delete
+        {{ t("delete") }}
       </LazyVButton>
     </div>
   </article>
@@ -167,13 +176,15 @@
 <script lang="ts" setup>
 import type { Customer, Status } from "~/types/home";
 
+const { locale, t } = useI18n();
+
 const props = defineProps<{
   customer: Customer;
   statusStyles: Record<Status, { label: string; class: string }>;
 }>();
 
-const { locale } = useI18n();
 const money = (amount: number) => formatMoney(amount, locale.value);
+
 const remaining = computed(() => remainingAmount(props.customer));
 
 const emit = defineEmits<{

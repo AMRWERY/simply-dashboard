@@ -49,12 +49,12 @@ export function resolveImageType(file: File): string {
   );
 }
 
-/** Returns an error message, or null when the file is acceptable. */
-export function validateCustomerImage(file: File): string | null {
-  if (!CUSTOMER_IMAGE_TYPES[resolveImageType(file)]) {
-    return "Please choose a JPG, PNG or WebP image";
-  }
-  if (file.size > CUSTOMER_IMAGE_MAX_BYTES) return "Image must be 2 MB or less";
+/** Returns an i18n key for the problem, or null when the file is acceptable. */
+export function validateCustomerImage(
+  file: File,
+): "invalid_image_type" | "image_too_large" | null {
+  if (!CUSTOMER_IMAGE_TYPES[resolveImageType(file)]) return "invalid_image_type";
+  if (file.size > CUSTOMER_IMAGE_MAX_BYTES) return "image_too_large";
   return null;
 }
 

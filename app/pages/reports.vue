@@ -28,9 +28,11 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-extrabold tracking-tight">Reports & Analytics</h1>
+          <h1 class="text-2xl font-extrabold tracking-tight">
+            {{ t("reports_analytics") }}
+          </h1>
           <p class="mt-1 text-sm text-indigo-200/80">
-            Performance metrics and customer activity insights
+            {{ t("reports_analytics_description") }}
           </p>
         </div>
       </div>
@@ -38,32 +40,61 @@
 
     <!-- Placeholder analytics cards -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]">
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Total Revenue</p>
-        <p dir="ltr" class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+      <div
+        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
+      >
+        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+          {{ t("total_revenue") }}
+        </p>
+        <p
+          dir="ltr"
+          class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white"
+        >
           {{ formatMoney(totals.earned, locale) }}
         </p>
         <p class="mt-2 text-xs font-semibold text-amber-600">
-          {{ formatMoney(totals.outstanding, locale) }} outstanding
+          {{
+            t("outstanding_amount", {
+              amount: formatMoney(totals.outstanding, locale),
+            })
+          }}
         </p>
       </div>
-      <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]">
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Active Customers</p>
-        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">128</p>
-        <p class="mt-2 text-xs font-semibold text-indigo-600">5 active right now</p>
+      <div
+        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
+      >
+        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+          {{ t("active_customers") }}
+        </p>
+        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+          128
+        </p>
+        <p class="mt-2 text-xs font-semibold text-indigo-600">
+          {{ t("active_right_now", { count: 5 }) }}
+        </p>
       </div>
-      <div class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]">
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Tasks Completed</p>
-        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">94%</p>
-        <p class="mt-2 text-xs font-semibold text-emerald-600">On schedule</p>
+      <div
+        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
+      >
+        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+          {{ t("tasks_completed") }}
+        </p>
+        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
+          94%
+        </p>
+        <p class="mt-2 text-xs font-semibold text-emerald-600">
+          {{ t("on_schedule") }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+const { locale, t } = useI18n();
+
 const customerStore = useCustomerStore();
-const { locale } = useI18n();
+
 const totals = computed(() => summarizeEarnings(customerStore.items));
 
 // The store is empty when landing here directly; load it once.
@@ -80,5 +111,11 @@ onMounted(async () => {
 definePageMeta({
   layout: "dashboard",
   middleware: "auth",
+});
+
+useSeoPage({
+  title: () => t("reports_page"),
+  description: () => t("reports_analytics_description"),
+  private: true,
 });
 </script>

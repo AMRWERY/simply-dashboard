@@ -30,7 +30,7 @@
       <button
         v-if="isPassword"
         type="button"
-        :aria-label="passwordVisible ? 'Hide password' : 'Show password'"
+        :aria-label="passwordVisible ? t('hide_password') : t('show_password')"
         class="absolute inset-y-0 end-4 flex items-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-300"
         @click="passwordVisible = !passwordVisible"
       >
@@ -86,6 +86,8 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
@@ -122,7 +124,7 @@ const props = withDefaults(
     hint: undefined,
     rules: undefined,
     compact: false,
-  }
+  },
 );
 
 const emit = defineEmits<{
@@ -154,7 +156,8 @@ const veeField = props.name
 
 const inputValue = computed({
   get() {
-    if (veeField) return (veeField.value.value as string) ?? props.modelValue ?? "";
+    if (veeField)
+      return (veeField.value.value as string) ?? props.modelValue ?? "";
     return (props.modelValue as string) ?? "";
   },
   set(val: string) {

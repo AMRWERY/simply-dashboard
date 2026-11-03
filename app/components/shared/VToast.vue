@@ -50,7 +50,7 @@
           <!-- Close button -->
           <button
             type="button"
-            aria-label="Close notification"
+            :aria-label="t('close_notification')"
             class="transition"
             :class="variantClasses[toast.type].close"
             @click="remove(toast.id)"
@@ -76,6 +76,8 @@
 
 <script lang="ts" setup>
 import type { ToastItem, ToastOptions, ToastType } from "~/types/shared/VToast";
+
+const { t } = useI18n();
 
 const toasts = ref<ToastItem[]>([]);
 let _nextId = 0;

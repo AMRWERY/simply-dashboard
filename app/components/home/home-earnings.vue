@@ -48,7 +48,7 @@ import type { Customer } from "~/types/home";
 
 const props = defineProps<{ customers: Customer[] }>();
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 const money = (amount: number) => formatMoney(amount, locale.value);
 
 const totals = computed(() => summarizeEarnings(props.customers));
@@ -59,7 +59,7 @@ const billed = useCountUp(computed(() => totals.value.billed));
 
 const tiles = computed(() => [
   {
-    label: "Total earnings",
+    label: t("total_earnings"),
     shown: earned.value,
     valueClass: "text-emerald-600 dark:text-emerald-400",
     iconClass:
@@ -67,7 +67,7 @@ const tiles = computed(() => [
     icon: "M3 17l6-6 4 4 8-8M15 7h6v6",
   },
   {
-    label: "Outstanding",
+    label: t("outstanding"),
     shown: outstanding.value,
     valueClass: "text-amber-600 dark:text-amber-400",
     iconClass:
@@ -75,7 +75,7 @@ const tiles = computed(() => [
     icon: "M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   },
   {
-    label: "Total billed",
+    label: t("total_billed"),
     shown: billed.value,
     valueClass: "text-gray-900 dark:text-white",
     iconClass:

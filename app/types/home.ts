@@ -32,6 +32,8 @@ export interface CustomerInput {
 }
 
 export interface Filter {
+  /** Stable identity: "all" or a Status. */
+  key: string;
   label: string;
   count: number;
 }

@@ -2,16 +2,27 @@
   <nav
     v-if="pageCount > 1"
     class="flex flex-col items-center justify-between gap-4 sm:flex-row"
-    aria-label="Pagination"
+    :aria-label="t('pagination')"
   >
-    <p class="text-sm text-gray-500 dark:text-gray-400">
-      Showing
-      <span class="font-bold text-gray-900 dark:text-white">
-        {{ rangeStart }}–{{ rangeEnd }}
-      </span>
-      of
-      <span class="font-bold text-gray-900 dark:text-white">{{ total }}</span>
-    </p>
+    <i18n-t
+      keypath="showing_range"
+      tag="p"
+      class="text-sm text-gray-500 dark:text-gray-400"
+    >
+      <template #start>
+        <span class="font-bold text-gray-900 dark:text-white">{{
+          rangeStart
+        }}</span>
+      </template>
+      <template #end>
+        <span class="font-bold text-gray-900 dark:text-white">{{
+          rangeEnd
+        }}</span>
+      </template>
+      <template #total>
+        <span class="font-bold text-gray-900 dark:text-white">{{ total }}</span>
+      </template>
+    </i18n-t>
 
     <ul class="flex items-center gap-1.5">
       <li>
@@ -19,7 +30,7 @@
           type="button"
           :class="[navBtn, 'rtl:rotate-180']"
           :disabled="modelValue === 1"
-          aria-label="Previous page"
+          :aria-label="t('previous_page')"
           @click="go(modelValue - 1)"
         >
           <svg
@@ -53,7 +64,7 @@
               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
               : 'text-gray-700 hover:bg-indigo-50 dark:text-gray-300 dark:hover:bg-indigo-950/40',
           ]"
-          :aria-label="`Page ${item}`"
+          :aria-label="t('page_number', { number: item })"
           :aria-current="item === modelValue ? 'page' : undefined"
           @click="go(item as number)"
         >
@@ -66,7 +77,7 @@
           type="button"
           :class="[navBtn, 'rtl:rotate-180']"
           :disabled="modelValue === pageCount"
-          aria-label="Next page"
+          :aria-label="t('next_page')"
           @click="go(modelValue + 1)"
         >
           <svg
@@ -87,6 +98,8 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n();
+
 const ELLIPSIS = "…" as const;
 
 const props = withDefaults(
@@ -108,15 +121,18 @@ const emit = defineEmits<{
 
 const pageBtn =
   "flex h-11 min-w-11 items-center justify-center rounded-xl px-3 text-sm font-bold transition-all duration-200 outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 dark:focus-visible:ring-indigo-700";
+
 const navBtn =
   "flex h-11 w-11 items-center justify-center rounded-xl text-gray-600 transition-all duration-200 outline-none hover:bg-indigo-50 focus-visible:ring-4 focus-visible:ring-indigo-300 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-300 dark:hover:bg-indigo-950/40 dark:focus-visible:ring-indigo-700";
 
 const pageCount = computed(() =>
   Math.max(1, Math.ceil(props.total / props.pageSize)),
 );
+
 const rangeStart = computed(() =>
   props.total === 0 ? 0 : (props.modelValue - 1) * props.pageSize + 1,
 );
+
 const rangeEnd = computed(() =>
   Math.min(props.modelValue * props.pageSize, props.total),
 );
