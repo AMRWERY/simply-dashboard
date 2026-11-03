@@ -42,7 +42,7 @@
               name="email"
               :label="t('email')"
               type="email"
-              placeholder="admin@company.com"
+              placeholder="admin@simply.com"
               icon="email-icon"
               rules="required|email"
               dir="ltr"

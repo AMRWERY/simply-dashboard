@@ -1,15 +1,5 @@
 import type { Customer } from "~/types/home";
-
-type Translate = (key: string, named?: Record<string, unknown>) => string;
-type RGB = [number, number, number];
-
-interface ReportPdfInput {
-  customers: Customer[];
-  locale: string;
-  t: Translate;
-  /** App base URL, used to fetch the Arabic-capable font from /public/fonts. */
-  baseURL: string;
-}
+import type { Translate, RGB, ReportPdfInput } from "~/types/reportPdf";
 
 const PAGE_W = 210; // A4 portrait, mm
 const PAGE_H = 297;
@@ -43,8 +33,7 @@ async function loadFont(url: string): Promise<string> {
 }
 
 /** Intl adds invisible bidi marks and no-break spaces the PDF font can't draw. */
-const clean = (s: string) =>
-  s.replace(/[‎‏؜‪-‮]/g, "").replace(/[  ]/g, " ");
+const clean = (s: string) => s.replace(/[‎‏؜‪-‮]/g, "").replace(/[  ]/g, " ");
 
 /**
  * Builds the customer report as a real (text + vector) PDF. Arabic works
@@ -128,7 +117,7 @@ export async function buildReportPdf({
 
   const table = (head: string[], rows: string[][], numeric: number[] = []) => {
     // autotable lays columns out left to right, so Arabic reverses them.
-    const order = <T,>(row: T[]) => (isRtl ? [...row].reverse() : row);
+    const order = <T>(row: T[]) => (isRtl ? [...row].reverse() : row);
     const col = (i: number) => (isRtl ? head.length - 1 - i : i);
     // autotable's own text drawing mangles Arabic (letters come out flipped),
     // including Arabic names inside an English report, while doc.text is
@@ -186,8 +175,9 @@ export async function buildReportPdf({
         ]),
       ),
     });
-    y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
-      .finalY + 8;
+    y =
+      (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+        .finalY + 8;
   };
 
   // ── Header band ──────────────────────────────────────────────────────────
@@ -216,7 +206,10 @@ export async function buildReportPdf({
       [t("total_billed"), money(totals.billed)],
       [t("total_earnings"), money(totals.earned)],
       [t("outstanding"), money(totals.outstanding)],
-      [t("collection_rate"), `${collectionRate(totals.billed, totals.earned)}%`],
+      [
+        t("collection_rate"),
+        `${collectionRate(totals.billed, totals.earned)}%`,
+      ],
       [t("average_per_customer"), money(avg)],
     ],
     [1],
@@ -235,7 +228,14 @@ export async function buildReportPdf({
     y += 10;
   } else {
     table(
-      ["#", t("customer_name"), t("city"), t("amount_due"), t("paid"), t("remaining")],
+      [
+        "#",
+        t("customer_name"),
+        t("city"),
+        t("amount_due"),
+        t("paid"),
+        t("remaining"),
+      ],
       debtors.map(({ customer: c, remaining }, i) => [
         String(i + 1),
         c.name,
@@ -322,7 +322,15 @@ export async function buildReportPdf({
       doc.roundedRect(trackX, y + 1, trackW, 4, 2, 2, "F");
       const w = Math.max(2, (c.count / maxCity) * trackW);
       doc.setFillColor(...INDIGO);
-      doc.roundedRect(isRtl ? trackX + trackW - w : trackX, y + 1, w, 4, 2, 2, "F");
+      doc.roundedRect(
+        isRtl ? trackX + trackW - w : trackX,
+        y + 1,
+        w,
+        4,
+        2,
+        2,
+        "F",
+      );
 
       setFont("bold", 10, INK);
       const countX = boxX(labelW + trackW + 4, countW);
