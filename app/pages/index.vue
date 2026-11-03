@@ -20,9 +20,19 @@
       v-else
       :customers="paginatedCustomers"
       :status-styles="statusStyles"
+      @view="openDetails"
       @edit="openEditModal"
       @delete="promptDeleteCustomer"
       @reset="resetFilters"
+    />
+
+    <!-- Customer Details Dialog -->
+    <lazy-home-customer-details
+      :is-open="isDetailsOpen"
+      :customer="detailsCustomer"
+      :status-styles="statusStyles"
+      @close="closeDetails"
+      @edit="editFromDetails"
     />
 
     <!-- Pagination: only when results exceed one page -->
@@ -213,6 +223,24 @@ const confirmDeleteCustomer = async () => {
     isDeleteDialogOpen.value = false;
     customerToDelete.value = null;
   }
+};
+
+// Details Dialog State & Handlers
+const isDetailsOpen = ref(false);
+const detailsCustomer = ref<Customer | null>(null);
+
+const openDetails = (customer: Customer) => {
+  detailsCustomer.value = customer;
+  isDetailsOpen.value = true;
+};
+
+const closeDetails = () => {
+  isDetailsOpen.value = false;
+};
+
+const editFromDetails = (customer: Customer) => {
+  closeDetails();
+  openEditModal(customer);
 };
 
 // Modal & Form State

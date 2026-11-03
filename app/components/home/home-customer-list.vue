@@ -12,6 +12,7 @@
         :style="{ '--i': index }"
         :customer="customer"
         :status-styles="statusStyles"
+        @view="emit('view', $event)"
         @edit="emit('edit', $event)"
         @delete="emit('delete', $event)"
       />
@@ -40,6 +41,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (e: "view", customer: Customer): void;
   (e: "edit", customer: Customer): void;
   (e: "delete", id: string): void;
   (e: "reset"): void;

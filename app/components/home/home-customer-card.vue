@@ -127,6 +127,16 @@
     <!-- Actions -->
     <div class="mt-5 grid grid-cols-2 gap-2.5">
       <LazyVButton
+        variant="secondary"
+        size="sm"
+        icon="eye-open-icon"
+        block
+        class="col-span-2"
+        @click="emit('view', customer)"
+      >
+        View details
+      </LazyVButton>
+      <LazyVButton
         variant="soft"
         size="sm"
         icon="edit-icon"
@@ -161,6 +171,7 @@ const money = (amount: number) => formatMoney(amount, locale.value);
 const remaining = computed(() => remainingAmount(props.customer));
 
 const emit = defineEmits<{
+  (e: "view", customer: Customer): void;
   (e: "edit", customer: Customer): void;
   (e: "delete", id: string): void;
 }>();
