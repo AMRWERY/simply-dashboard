@@ -21,7 +21,7 @@
       <!-- Right-side icon (decorative) -->
       <span
         v-if="icon"
-        class="pointer-events-none absolute inset-y-0 end-4 flex items-center text-gray-400"
+        class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400"
       >
         <VIcon :name="icon" class="h-5 w-5" />
       </span>
@@ -31,7 +31,7 @@
         v-if="isPassword"
         type="button"
         :aria-label="passwordVisible ? t('hide_password') : t('show_password')"
-        class="absolute inset-y-0 end-4 flex items-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-300"
+        class="absolute inset-y-0 right-4 flex items-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-300"
         @click="passwordVisible = !passwordVisible"
       >
         <VIcon
