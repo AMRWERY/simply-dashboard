@@ -69,6 +69,7 @@ export function toCustomer(row: CustomerRow): Customer {
     email: row.email,
     avatarClass: avatarClassFor(row.id),
     imageUrl: row.image_url,
+    createdAt: row.created_at,
     amountDue: Number(row.amount_due),
     amountPaid: Number(row.amount_paid),
   };

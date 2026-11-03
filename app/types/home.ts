@@ -9,6 +9,8 @@ export interface Customer {
   phone: string;
   email: string | null;
   avatarClass: string;
+  /** ISO timestamp the customer was created. */
+  createdAt: string;
   /** Public URL of the uploaded photo; initials are shown when null. */
   imageUrl: string | null;
   /** Total the customer must pay. */

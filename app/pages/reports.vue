@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <!-- Header banner -->
     <section
-      class="relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl bg-[#151733] p-6 text-white shadow-xl shadow-indigo-950/20 sm:flex-row sm:items-center sm:p-8"
+      class="fade-up relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl bg-[#151733] p-6 text-white shadow-xl shadow-indigo-950/20 sm:flex-row sm:items-center sm:p-8"
     >
       <div
         class="pointer-events-none absolute -top-20 -end-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl"
@@ -34,58 +34,38 @@
           <p class="mt-1 text-sm text-indigo-200/80">
             {{ t("reports_analytics_description") }}
           </p>
+          <!-- Only shows on the exported PDF -->
+          <p
+            data-pdf-only
+            class="mt-2 hidden text-xs font-semibold text-indigo-200/70 print:block"
+          >
+            {{ t("generated_on", { date: generatedOn }) }}
+          </p>
         </div>
       </div>
+
+      <LazyVButton
+        class="relative print:hidden"
+        :loading="isExporting"
+        @click="exportPdf"
+      >
+        {{ isExporting ? t("exporting_pdf") : t("export_pdf") }}
+      </LazyVButton>
     </section>
 
-    <!-- Placeholder analytics cards -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div
-        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
-      >
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-          {{ t("total_revenue") }}
-        </p>
-        <p
-          dir="ltr"
-          class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white"
-        >
-          {{ formatMoney(totals.earned, locale) }}
-        </p>
-        <p class="mt-2 text-xs font-semibold text-amber-600">
-          {{
-            t("outstanding_amount", {
-              amount: formatMoney(totals.outstanding, locale),
-            })
-          }}
-        </p>
-      </div>
-      <div
-        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
-      >
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-          {{ t("active_customers") }}
-        </p>
-        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
-          128
-        </p>
-        <p class="mt-2 text-xs font-semibold text-indigo-600">
-          {{ t("active_right_now", { count: 5 }) }}
-        </p>
-      </div>
-      <div
-        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b]"
-      >
-        <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
-          {{ t("tasks_completed") }}
-        </p>
-        <p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white">
-          94%
-        </p>
-        <p class="mt-2 text-xs font-semibold text-emerald-600">
-          {{ t("on_schedule") }}
-        </p>
-      </div>
+    <!-- 1. Money summary -->
+    <reports-summary :customers="customers" />
+
+    <!-- 2 + 3. Who owes you, and the status split -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <reports-top-debtors :customers="customers" class="lg:col-span-2" />
+      <reports-status-donut :customers="customers" />
+    </div>
+
+    <!-- 4 + 5. Growth and cities -->
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <reports-growth :customers="customers" />
+      <reports-cities :customers="customers" />
     </div>
   </div>
 </template>
@@ -94,8 +74,7 @@
 const { locale, t } = useI18n();
 
 const customerStore = useCustomerStore();
-
-const totals = computed(() => summarizeEarnings(customerStore.items));
+const customers = computed(() => customerStore.items);
 
 // The store is empty when landing here directly; load it once.
 onMounted(async () => {
@@ -107,6 +86,26 @@ onMounted(async () => {
     }
   }
 });
+
+const generatedOn = computed(() =>
+  new Intl.DateTimeFormat(locale.value === "ar" ? "ar-EG-u-nu-latn" : "en-US", {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(new Date()),
+);
+
+const { isExporting, exportReport } = useReportPdf();
+const { add: addToast } = useToast();
+
+const exportPdf = async () => {
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    await exportReport(customers.value, `customers-report-${day}.pdf`);
+  } catch (e) {
+    console.error("[reports] pdf export failed", e);
+    addToast({ type: "error", message: t("report_export_failed") });
+  }
+};
 
 definePageMeta({
   layout: "dashboard",

@@ -19,9 +19,11 @@ html.dark {
   animation: none;
   mix-blend-mode: normal;
 }
+
 ::view-transition-old(root) {
   z-index: 1;
 }
+
 ::view-transition-new(root) {
   z-index: 2;
 }
@@ -40,6 +42,23 @@ html.dark {
 .fade-up {
   animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: var(--d, 0ms);
+}
+
+/* Arabic is a connected script: any letter-spacing (e.g. Tailwind's
+   tracking-tight) squeezes or breaks the joins, so never apply it. */
+html[lang="ar"] * {
+  letter-spacing: normal !important;
+}
+
+/* Printing (Ctrl+P): keep colours and backgrounds */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 /* Respect users who prefer reduced motion */

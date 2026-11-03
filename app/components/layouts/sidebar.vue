@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="print:hidden">
     <!-- Mobile Backdrop -->
     <Transition name="backdrop">
       <div
@@ -87,7 +87,7 @@
           </nuxt-link-locale>
 
           <!-- Route 2: Reports -->
-          <!-- <nuxt-link-locale
+          <nuxt-link-locale
             to="/reports"
             @click="emit('update:modelValue', false)"
             :class="[
@@ -103,8 +103,8 @@
               alt="reports"
               class="h-5 w-5 shrink-0 transition-transform group-hover:scale-110"
             />
-            <span>Reports</span>
-          </nuxt-link-locale> -->
+            <span>{{ t("reports") }}</span>
+          </nuxt-link-locale>
         </nav>
       </div>
 

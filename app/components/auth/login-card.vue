@@ -133,28 +133,16 @@
           </Form>
         </div>
       </div>
-
-      <!-- Support link -->
-      <LazyVButton
-        to="#"
-        variant="ghost"
-        size="sm"
-        trailing-icon="whatsapp-icon"
-        icon-class="!text-green-500"
-        class="mt-8 text-sm font-semibold !text-indigo-700 hover:underline dark:!text-indigo-300"
-      >
-        {{ t("contact_support") }}
-      </LazyVButton>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 const { t } = useI18n();
+const localePath = useLocalePath();
 
 const authStore = useAuthStore();
 const { add: addToast } = useToast();
-const localePath = useLocalePath();
 
 const remember = ref(true);
 const isLoading = ref(false);

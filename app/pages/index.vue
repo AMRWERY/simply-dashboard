@@ -1,13 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Greeting + live date/time (client-only: depends on the visitor's clock) -->
-    <ClientOnly>
-      <lazy-home-greeting />
-      <template #fallback>
-        <div class="h-[124px] rounded-3xl bg-white/60 dark:bg-[#1e1f2b]/60" />
-      </template>
-    </ClientOnly>
-
     <!-- Hero Banner -->
     <lazy-home-hero
       :total-customers="customers.length"
