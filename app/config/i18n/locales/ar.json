@@ -130,5 +130,16 @@
   "copy": "نسخ",
   "copied": "تم النسخ",
   "your_activity": "نشاطك",
-  "profile_photo_updated": "تم تحديث الصورة الشخصية"
+  "profile_photo_updated": "تم تحديث الصورة الشخصية",
+  "change_password": "تغيير كلمة المرور",
+  "change_password_description": "استخدم 8 أحرف على الأقل. سنطلب منك كلمة المرور الحالية.",
+  "current_password": "كلمة المرور الحالية",
+  "new_password": "كلمة المرور الجديدة",
+  "confirm_new_password": "تأكيد كلمة المرور الجديدة",
+  "update_password": "تحديث كلمة المرور",
+  "updating_password": "جارٍ التحديث...",
+  "current_password_incorrect": "كلمة المرور الحالية غير صحيحة",
+  "password_same_as_current": "يجب أن تختلف كلمة المرور الجديدة عن الحالية",
+  "password_updated": "تم تحديث كلمة المرور. يرجى تسجيل الدخول مرة أخرى بكلمة المرور الجديدة.",
+  "password_update_failed": "تعذّر تحديث كلمة المرور، حاول مرة أخرى"
 }

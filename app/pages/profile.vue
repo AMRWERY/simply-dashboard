@@ -198,6 +198,52 @@
         </ul>
       </section>
     </div>
+
+    <!-- Change password -->
+    <section
+      style="--d: 200ms"
+      class="fade-up rounded-3xl border border-gray-100 bg-white p-6 shadow-sm shadow-indigo-900/5 dark:border-gray-800 dark:bg-[#1e1f2b] dark:shadow-none"
+    >
+      <h2 class="text-base font-extrabold text-gray-900 dark:text-white">
+        {{ t("change_password") }}
+      </h2>
+      <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+        {{ t("change_password_description") }}
+      </p>
+
+      <Form class="mt-5 max-w-md space-y-4" @submit="changePassword">
+        <LazyVInput
+          name="current_password"
+          :label="t('current_password')"
+          type="password"
+          placeholder="••••••••"
+          rules="required"
+          dir="ltr"
+        />
+        <LazyVInput
+          name="new_password"
+          :label="t('new_password')"
+          type="password"
+          placeholder="••••••••"
+          rules="required|min:8"
+          dir="ltr"
+        />
+        <LazyVInput
+          name="confirm_password"
+          :label="t('confirm_new_password')"
+          type="password"
+          placeholder="••••••••"
+          rules="required|confirmed:@new_password"
+          dir="ltr"
+        />
+
+        <LazyVButton type="submit" :disabled="isChangingPassword">
+          {{
+            isChangingPassword ? t("updating_password") : t("update_password")
+          }}
+        </LazyVButton>
+      </Form>
+    </section>
   </div>
 </template>
 
@@ -329,6 +375,59 @@ const onFileSelected = async (event: Event) => {
     addToast({ type: "error", message });
   } finally {
     isUploading.value = false;
+  }
+};
+
+// ── Change password ────────────────────────────────────────────────────────
+const isChangingPassword = ref(false);
+
+const changePassword = async (
+  values: Record<string, string>,
+  { resetForm }: { resetForm: () => void },
+) => {
+  const email = auth.user?.email;
+  const current = values.current_password ?? "";
+  const next = values.new_password ?? "";
+  if (!email || isChangingPassword.value) return;
+
+  if (current === next) {
+    addToast({ type: "error", message: t("password_same_as_current") });
+    return;
+  }
+
+  isChangingPassword.value = true;
+  try {
+    // Re-check the current password first: a stolen open session alone
+    // shouldn't be enough to take over the account.
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+      email,
+      password: current,
+    });
+    if (verifyError) {
+      addToast({ type: "error", message: t("current_password_incorrect") });
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: next });
+    if (error) throw error;
+
+    resetForm();
+    addToast({ type: "success", message: t("password_updated") });
+
+    // Sign out so the new password is what gets used next; the toast lives
+    // in the app root, so it stays visible on the login page.
+    try {
+      await auth.logout();
+    } catch {
+      addToast({ type: "error", message: t("logout_failed") });
+      return;
+    }
+    await navigateTo(localePath("/auth"));
+  } catch (e) {
+    console.error("[profile] password update failed", e);
+    addToast({ type: "error", message: t("password_update_failed") });
+  } finally {
+    isChangingPassword.value = false;
   }
 };
 
