@@ -116,5 +116,19 @@
   "summary": "Summary",
   "metric": "Metric",
   "value": "Value",
-  "currency_egp": "EGP"
+  "currency_egp": "EGP",
+  "profile": "Profile",
+  "profile_description": "Your account details and activity",
+  "account_details": "Account details",
+  "full_name": "Name",
+  "email_status": "Email status",
+  "verified": "Verified",
+  "not_verified": "Not verified",
+  "member_since": "Member since",
+  "last_sign_in": "Last sign-in",
+  "provider_email": "Email & password",
+  "copy": "Copy",
+  "copied": "Copied to clipboard",
+  "your_activity": "Your activity",
+  "profile_photo_updated": "Profile photo updated"
 }

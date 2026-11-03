@@ -25,26 +25,6 @@
         <div class="relative">
           <!-- Header -->
           <div class="flex flex-col items-center">
-            <div class="relative">
-              <div
-                class="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-500 shadow-lg shadow-indigo-600/30"
-              >
-                <svg
-                  class="h-10 w-10 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
-                </svg>
-              </div>
-              <span
-                class="absolute -bottom-1 -start-1 h-5 w-5 rounded-full bg-amber-400 ring-4 ring-white dark:ring-[#1e1f2b]"
-              />
-            </div>
             <h1
               class="mt-6 text-3xl font-extrabold tracking-tight dark:text-white"
             >

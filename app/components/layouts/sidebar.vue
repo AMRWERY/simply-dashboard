@@ -112,16 +112,20 @@
       <div
         class="shrink-0 border-t border-gray-100 p-4 dark:border-gray-800 space-y-3"
       >
-        <!-- User Profile Pill -->
-        <div
-          class="flex items-center gap-3 rounded-2xl bg-gray-50/80 p-3 dark:bg-gray-800/40"
+        <!-- User Profile Pill: opens the profile page -->
+        <nuxt-link-locale
+          to="/profile"
+          :aria-label="t('profile')"
+          :class="[
+            'group flex items-center gap-3 rounded-2xl p-3 outline-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-indigo-500',
+            isProfileActive
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
+              : 'bg-gray-50/80 hover:bg-gray-100 dark:bg-gray-800/40 dark:hover:bg-gray-800/70',
+          ]"
+          @click="emit('update:modelValue', false)"
         >
-          <button
-            type="button"
-            class="group relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-xs font-extrabold text-white shadow-md shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500"
-            :disabled="isUploadingAvatar"
-            :aria-label="t('change_profile_picture')"
-            @click="avatarInput?.click()"
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-xs font-extrabold text-white shadow-md shadow-indigo-600/20 transition-transform duration-200 group-hover:scale-105"
           >
             <img
               v-if="auth.avatarUrl"
@@ -130,58 +134,42 @@
               class="h-full w-full object-cover"
             />
             <span v-else>{{ userInitials }}</span>
-            <span
-              class="absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity"
-              :class="
-                isUploadingAvatar
-                  ? 'opacity-100'
-                  : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
-              "
-            >
-              <svg
-                v-if="isUploadingAvatar"
-                class="h-4 w-4 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-              >
-                <path d="M12 3a9 9 0 1 0 9 9" />
-              </svg>
-              <svg
-                v-else
-                class="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
-                <circle cx="12" cy="13" r="3.5" />
-              </svg>
-            </span>
-          </button>
-          <input
-            ref="avatarInput"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            class="hidden"
-            @change="onAvatarSelected"
-          />
+          </div>
           <div class="min-w-0 flex-1 text-start">
             <p
-              class="truncate text-xs font-extrabold text-gray-900 capitalize dark:text-white leading-tight"
+              :class="[
+                'truncate text-xs font-extrabold capitalize leading-tight',
+                isProfileActive ? 'text-white' : 'text-gray-900 dark:text-white',
+              ]"
             >
               {{ userName }}
             </p>
-            <p class="truncate text-[11px] text-gray-500 dark:text-gray-400">
+            <p
+              :class="[
+                'truncate text-[11px]',
+                isProfileActive ? 'text-indigo-100' : 'text-gray-500 dark:text-gray-400',
+              ]"
+            >
               {{ userEmail }}
             </p>
           </div>
-        </div>
+          <!-- Chevron hints that the card is clickable; flips in RTL -->
+          <svg
+            :class="[
+              'h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5',
+              isProfileActive ? 'text-indigo-100' : 'text-gray-400',
+            ]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </nuxt-link-locale>
 
         <!-- Logout Button in the bottom of sidebar -->
         <LazyVButton
@@ -242,34 +230,11 @@ const isCustomersActive = computed(() => {
   );
 });
 
+const isProfileActive = computed(() => route.path.includes("profile"));
+
 const isReportsActive = computed(() => {
   return route.path.includes("reports");
 });
-
-const avatarInput = ref<HTMLInputElement | null>(null);
-const isUploadingAvatar = ref(false);
-
-const onAvatarSelected = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  input.value = ""; // lets the same file be picked again
-  if (!file) return;
-
-  isUploadingAvatar.value = true;
-  try {
-    await auth.uploadAvatar(file);
-  } catch (e) {
-    const message =
-      e instanceof Error && e.message === "invalid-type"
-        ? t("invalid_image_type")
-        : e instanceof Error && e.message === "too-large"
-          ? t("image_too_large")
-          : t("upload_image_failed");
-    useToast().add({ type: "error", message });
-  } finally {
-    isUploadingAvatar.value = false;
-  }
-};
 
 const handleLogout = async () => {
   try {

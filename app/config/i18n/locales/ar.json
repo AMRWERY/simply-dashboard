@@ -116,5 +116,19 @@
   "summary": "الملخص",
   "metric": "المقياس",
   "value": "القيمة",
-  "currency_egp": "جنيه"
+  "currency_egp": "جنيه",
+  "profile": "الملف الشخصي",
+  "profile_description": "بيانات حسابك ونشاطك",
+  "account_details": "بيانات الحساب",
+  "full_name": "الاسم",
+  "email_status": "حالة البريد",
+  "verified": "مؤكد",
+  "not_verified": "غير مؤكد",
+  "member_since": "عضو منذ",
+  "last_sign_in": "آخر تسجيل دخول",
+  "provider_email": "البريد وكلمة المرور",
+  "copy": "نسخ",
+  "copied": "تم النسخ",
+  "your_activity": "نشاطك",
+  "profile_photo_updated": "تم تحديث الصورة الشخصية"
 }
