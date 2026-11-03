@@ -1,5 +1,9 @@
 {
   "home_page": "الصفحة الرئيسية",
+  "greeting_morning": "صباح الخير",
+  "greeting_afternoon": "طاب يومك",
+  "greeting_evening": "مساء الخير",
+  "greeting_night": "تصبح على خير",
   "sign_in_page": "تسجيل الدخول",
   "reports_page": "التقارير",
   "customers": "العملاء",
