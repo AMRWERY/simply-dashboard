@@ -94,15 +94,15 @@
                 compact
               />
 
-              <!-- Email -->
+              <!-- Facebook link -->
               <LazyVInput
-                v-model="form.email"
-                name="customer_email"
+                v-model="form.link"
+                name="customer_link"
                 autocomplete="off"
-                :label="t('email')"
-                type="email"
-                placeholder="example@example.com"
-                rules="email"
+                :label="t('link')"
+                type="url"
+                placeholder="https://facebook.com/username"
+                :rules="validateLink"
                 dir="ltr"
                 compact
               />
@@ -215,7 +215,7 @@ const emit = defineEmits<{
 
 const emptyForm = () => ({
   name: "",
-  email: "",
+  link: "",
   phone: "",
   city: "",
   status: "new" as Status,
@@ -295,6 +295,12 @@ const validateAmount = (v: unknown): boolean | string => {
   return true;
 };
 
+// Optional; when filled it must be a web link.
+const validateLink = (v: unknown): boolean | string => {
+  const raw = String(v ?? "").trim();
+  return !raw || isValidLink(raw) ? true : t("invalid_link");
+};
+
 // 11 digits, starting with 01 (spaces and dashes are allowed while typing).
 const validatePhone = (v: unknown): boolean | string => {
   const raw = String(v ?? "").trim();
@@ -323,7 +329,7 @@ watch(
     if (customer) {
       form.value = {
         name: customer.name,
-        email: customer.email ?? "",
+        link: customer.link ?? "",
         phone: customer.phone,
         city: customer.city ?? "",
         status: customer.status,

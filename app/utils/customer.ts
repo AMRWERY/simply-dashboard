@@ -74,7 +74,7 @@ export const toCustomer = (row: CustomerRow): Customer => {
     status: row.status,
     city: row.city,
     phone: row.phone,
-    email: row.email,
+    link: row.link,
     avatarClass: avatarClassFor(row.id),
     imageUrl: row.image_url,
     createdAt: row.created_at,

@@ -1,10 +1,10 @@
 // The phone rule lives in app/utils so the form and the server share one definition.
 // Nitro only auto-imports server/utils (not app/utils), so import it explicitly.
 import { isValidPhone, normalizePhone } from "../../app/utils/phone";
+import { isValidLink, normalizeLink } from "../../app/utils/link";
 
 const STATUSES = ["active", "new", "follow-up"] as const;
 type Status = (typeof STATUSES)[number];
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const amount = (raw: string | undefined, field: string, required: boolean): number => {
   const text = (raw ?? "").trim();
@@ -39,8 +39,9 @@ const text = (
  * rules hold no matter what client sends them.
  */
 export const parseCustomer = (fields: Record<string, string>) => {
-  const email = text(fields.email, "email", 254, false);
-  if (email && !EMAIL.test(email)) httpError(400, "invalid_email", "Invalid email");
+  const rawLink = text(fields.link, "link", 300, false);
+  if (rawLink && !isValidLink(rawLink)) httpError(400, "invalid_link", "Invalid link");
+  const link = rawLink ? normalizeLink(rawLink) : null;
 
   const status = (fields.status ?? "new") as Status;
   if (!STATUSES.includes(status)) httpError(400, "invalid_status", "Invalid status");
@@ -57,7 +58,7 @@ export const parseCustomer = (fields: Record<string, string>) => {
   return {
     name: text(fields.name, "name", 120, true)!,
     phone: normalizePhone(phone),
-    email,
+    link,
     city: text(fields.city, "city", 80, false),
     status,
     amount_due: amountDue,

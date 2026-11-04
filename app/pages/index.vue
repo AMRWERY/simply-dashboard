@@ -180,7 +180,7 @@ const visibleCustomers = computed(() => {
   return list.filter(
     (c) =>
       c.name.toLowerCase().includes(query) ||
-      (c.email ?? "").toLowerCase().includes(query) ||
+      (c.link ?? "").toLowerCase().includes(query) ||
       (c.city ?? "").toLowerCase().includes(query) ||
       c.phone.replace(/\s/g, "").includes(query.replace(/\s/g, ""))
   );

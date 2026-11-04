@@ -37,7 +37,7 @@ export interface Customer {
   status: Status;
   city: string | null;
   phone: string;
-  email: string | null;
+  link: string | null;
   avatarClass: string;
   /** ISO timestamp the customer was created. */
   createdAt: string;
@@ -64,7 +64,7 @@ export interface Payment {
 export interface CustomerInput {
   name: string;
   phone: string;
-  email?: string;
+  link?: string;
   city?: string;
   status?: Status;
   amountDue?: number;

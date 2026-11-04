@@ -63,7 +63,20 @@
                 dir="ltr"
                 class="truncate font-medium text-gray-500 select-all dark:text-gray-400"
               >
-                {{ row.value }}
+                <a
+                  v-if="row.href"
+                  :href="row.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  :aria-label="t('open_facebook')"
+                  :title="t('open_facebook')"
+                  class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform hover:-translate-y-0.5"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.88v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/>
+                  </svg>
+                </a>
+                <template v-else>{{ row.value }}</template>
               </dd>
             </div>
           </dl>
@@ -173,7 +186,11 @@ const rows = computed(() => {
   if (!c) return [];
   return [
     { label: t("phone"), value: c.phone },
-    { label: t("email"), value: c.email || "—" },
+    {
+      label: t("link"),
+      value: c.link || "—",
+      href: facebookUrl(c.link) || undefined,
+    },
     { label: t("city"), value: c.city || "—" },
     { label: t("amount_due"), value: money(c.amountDue) },
     { label: t("paid"), value: money(c.amountPaid) },
