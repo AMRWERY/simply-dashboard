@@ -86,6 +86,32 @@
             <span>{{ t("customers") }}</span>
           </nuxt-link-locale>
 
+          <!-- Route: My schedule -->
+          <nuxt-link-locale
+            to="/my-schedule"
+            @click="emit('update:modelValue', false)"
+            :class="[
+              'group flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-bold transition-all duration-200',
+              isScheduleActive
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
+                : 'text-gray-600 hover:translate-x-1 hover:bg-gray-100 hover:text-gray-900 rtl:hover:-translate-x-1 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-white',
+            ]"
+          >
+            <svg
+              class="h-5 w-5 shrink-0 transition-transform group-hover:scale-110"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+            </svg>
+            <span>{{ t("my_schedule") }}</span>
+          </nuxt-link-locale>
+
           <!-- Route 2: Reports -->
           <nuxt-link-locale
             to="/reports"
@@ -232,6 +258,8 @@ const isCustomersActive = computed(() => {
 });
 
 const isProfileActive = computed(() => route.path.includes("profile"));
+
+const isScheduleActive = computed(() => route.path.includes("my-schedule"));
 
 const isReportsActive = computed(() => {
   return route.path.includes("reports");
