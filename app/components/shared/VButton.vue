@@ -18,15 +18,8 @@
     ]"
     v-bind="$attrs"
   >
-    <!-- Loading Spinner -->
-    <span
-      v-if="loading"
-      class="inline-block shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
-      :class="spinnerSizeClasses[size]"
-    />
-
     <!-- Leading Icon -->
-    <slot v-else name="icon">
+    <slot name="icon">
       <LazyVIcon
         v-if="icon"
         :name="icon"
@@ -42,7 +35,7 @@
     <!-- Trailing Icon -->
     <slot name="trailing-icon">
       <LazyVIcon
-        v-if="trailingIcon && !loading"
+        v-if="trailingIcon"
         :name="trailingIcon"
         :class="['shrink-0', iconSizeClasses[size], iconClass]"
       />
@@ -131,14 +124,5 @@ const iconSizeClasses: Record<ButtonSize, string> = {
   icon: "h-4 w-4",
   "icon-sm": "h-3.5 w-3.5",
   "icon-md": "h-5 w-5",
-};
-
-const spinnerSizeClasses: Record<ButtonSize, string> = {
-  sm: "h-3 w-3",
-  md: "h-3.5 w-3.5",
-  lg: "h-4 w-4",
-  icon: "h-3.5 w-3.5",
-  "icon-sm": "h-3 w-3",
-  "icon-md": "h-4 w-4",
 };
 </script>
