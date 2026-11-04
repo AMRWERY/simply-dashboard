@@ -111,8 +111,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Set initial locale and sync with i18n
   if (import.meta.client) {
-    const localeStore = useLocaleStore();
-    setLocale(localeStore.locale);
+    setLocale(i18n.locale.value);
 
     // Watch for locale changes
     watch(

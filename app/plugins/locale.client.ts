@@ -1,42 +1,29 @@
 import type { SupportedLocales } from "~/types/i18n-types";
 
+/**
+ * The URL prefix (/ar, /en) decides the language: the server renders with it
+ * and "/" is redirected using the cookie (server/middleware/default-locale.ts).
+ * So this plugin only copies the active language into the locale store, and
+ * never switches i18n itself; doing that on load made the browser render a
+ * different language than the server sent, which broke hydration.
+ */
 export default defineNuxtPlugin((nuxtApp) => {
-  const applyStoredLocale = (): void => {
+  const syncStoredLocale = (): void => {
     try {
-      const storedLocale = useLocalStorage<SupportedLocales>(
-        "locale",
-        "ar",
-      ).value;
-
-      // Only use valid locales
-      const locale =
-        storedLocale === "en" || storedLocale === "ar"
-          ? (storedLocale as SupportedLocales)
-          : "ar";
-
-      // Get i18n from the Nuxt app
       const i18n = nuxtApp.$i18n as any;
+      const active = i18n?.locale?.value;
+      if (active !== "en" && active !== "ar") return;
 
-      if (i18n) {
-        // Set the locale if needed
-        if (i18n.locale.value !== locale) {
-          i18n.setLocale(locale);
+      const store = useLocaleStore();
+      if (store.locale !== active) store.locale = active as SupportedLocales;
 
-          // Also update HTML attributes
-          document.documentElement.lang = locale;
-          document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
-        }
-      }
+      document.documentElement.lang = active;
+      document.documentElement.dir = active === "ar" ? "rtl" : "ltr";
     } catch (error) {
-      console.error("Error applying stored locale:", error);
+      console.error("Error syncing locale:", error);
     }
   };
 
-  // Apply locale on initial load
-  applyStoredLocale();
-
-  // Apply locale on page navigation
-  nuxtApp.hook("page:finish", () => {
-    applyStoredLocale();
-  });
+  syncStoredLocale();
+  nuxtApp.hook("page:finish", syncStoredLocale);
 });
