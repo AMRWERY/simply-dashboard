@@ -16,7 +16,7 @@ export const useCustomerStore = defineStore("customers", () => {
     form.append("phone", input.phone);
     form.append("link", input.link ?? "");
     form.append("city", input.city ?? "");
-    form.append("status", input.status ?? "new");
+    form.append("status", input.status ?? "active");
     form.append("amountDue", String(input.amountDue ?? ""));
     form.append("amountPaid", String(input.amountPaid ?? 0));
     if (input.schedules) {

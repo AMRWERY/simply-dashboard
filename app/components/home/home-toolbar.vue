@@ -24,51 +24,17 @@
         />
       </span>
     </div>
-
-    <!-- Filters -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-      <LazyVButton
-        v-for="filter in filters"
-        :key="filter.key"
-        :variant="activeFilter === filter.key ? 'primary' : 'ghost'"
-        size="md"
-        class="shrink-0"
-        :class="
-          activeFilter !== filter.key
-            ? 'bg-gray-100 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700'
-            : ''
-        "
-        @click="emit('update:activeFilter', filter.key)"
-      >
-        <span>{{ filter.label }}</span>
-        <span
-          :class="[
-            'ms-1 rounded-full px-2 py-0.5 text-[11px] font-bold',
-            activeFilter === filter.key
-              ? 'bg-white/20 text-white'
-              : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-          ]"
-        >
-          {{ filter.count }}
-        </span>
-      </LazyVButton>
-    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { Filter } from "~/types/home";
-
 const { t } = useI18n();
 
 defineProps<{
   searchQuery: string;
-  activeFilter: string;
-  filters: Filter[];
 }>();
 
 const emit = defineEmits<{
   (e: "update:searchQuery", value: string): void;
-  (e: "update:activeFilter", value: string): void;
 }>();
 </script>

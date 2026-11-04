@@ -156,14 +156,6 @@
                 compact
               />
 
-              <!-- Status -->
-              <LazyVSelectInput
-                v-model="form.status"
-                :label="t('status')"
-                :options="statusOptions"
-                compact
-              />
-
               <!-- Schedule: any number of dates and times, each markable as done -->
               <lazy-home-schedule-editor :key="editorKey" v-model="scheduleDrafts" />
             </div>
@@ -197,14 +189,12 @@ import type {
   ScheduleDraft,
   Status,
 } from "~/types/home";
-import type { SelectOption } from "~/types/shared/VSelectInput";
 
 const { t } = useI18n();
 
 const props = defineProps<{
   isOpen: boolean;
   editingCustomer: Customer | null;
-  statusOptions: SelectOption[];
   saving?: boolean;
 }>();
 
@@ -218,7 +208,7 @@ const emptyForm = () => ({
   link: "",
   phone: "",
   city: "",
-  status: "new" as Status,
+  status: "active" as Status,
   // Kept as strings (what the inputs hold); converted to numbers on submit.
   amountDue: "",
   amountPaid: "",

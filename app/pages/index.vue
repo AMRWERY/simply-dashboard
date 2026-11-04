@@ -13,11 +13,9 @@
       :payments="payments"
     />
 
-    <!-- Toolbar: Search & Filters -->
+    <!-- Toolbar: Search -->
     <lazy-home-toolbar
       v-model:search-query="searchQuery"
-      v-model:active-filter="activeFilter"
-      :filters="computedFilters"
     />
 
     <!-- Customer Cards Grid & Empty State -->
@@ -57,7 +55,6 @@
       :is-open="isModalOpen"
       :saving="isSaving"
       :editing-customer="selectedCustomer"
-      :status-options="statusOptions"
       @close="closeModal"
       @save="handleSaveCustomer"
     />
@@ -78,17 +75,9 @@ import type {
   Status,
   Customer,
   CustomerInput,
-  Filter,
 } from "~/types/home";
-import type { SelectOption } from "~/types/shared/VSelectInput";
 
 const { t } = useI18n();
-
-const statusOptions = computed<SelectOption[]>(() => [
-  { label: t("active"), value: "active", badgeClass: "bg-emerald-500" },
-  { label: t("new"), value: "new", badgeClass: "bg-amber-500" },
-  { label: t("follow_up"), value: "follow-up", badgeClass: "bg-orange-500" },
-]);
 
 const customerStore = useCustomerStore();
 const { add: addToast } = useToast();
@@ -124,7 +113,6 @@ onMounted(async () => {
 });
 
 const searchQuery = ref("");
-const activeFilter = ref("all");
 
 const statusStyles = computed<Record<Status, { label: string; class: string }>>(
   () => ({
@@ -146,30 +134,8 @@ const statusStyles = computed<Record<Status, { label: string; class: string }>>(
   }),
 );
 
-const computedFilters = computed<Filter[]>(() => {
-  const activeCount = customers.value.filter(
-    (c) => c.status === "active"
-  ).length;
-  const newCount = customers.value.filter((c) => c.status === "new").length;
-  const followUpCount = customers.value.filter(
-    (c) => c.status === "follow-up"
-  ).length;
-
-  return [
-    { key: "all", label: t("all"), count: customers.value.length },
-    { key: "active", label: t("active"), count: activeCount },
-    { key: "new", label: t("new"), count: newCount },
-    { key: "follow-up", label: t("follow_up"), count: followUpCount },
-  ];
-});
-
 const visibleCustomers = computed(() => {
-  let list = customers.value;
-
-  if (activeFilter.value !== "all") {
-    list = list.filter((c) => c.status === activeFilter.value);
-  }
-
+  const list = customers.value;
   const query = searchQuery.value.trim().toLowerCase();
   if (!query) return list;
 
@@ -191,7 +157,7 @@ const paginatedCustomers = computed(() => {
 });
 
 // Back to page 1 when the result set changes via search/filter
-watch([searchQuery, activeFilter], () => {
+watch(searchQuery, () => {
   currentPage.value = 1;
 });
 
@@ -206,7 +172,6 @@ watch(
 
 const resetFilters = () => {
   searchQuery.value = "";
-  activeFilter.value = "all";
 };
 
 // Delete Dialog State & Handlers

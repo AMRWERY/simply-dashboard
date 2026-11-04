@@ -3,7 +3,7 @@
 import { isValidPhone, normalizePhone } from "../../app/utils/phone";
 import { isValidLink, normalizeLink } from "../../app/utils/link";
 
-const STATUSES = ["active", "new", "follow-up"] as const;
+const STATUSES = ["active"] as const;
 type Status = (typeof STATUSES)[number];
 
 const amount = (raw: string | undefined, field: string, required: boolean): number => {
@@ -43,7 +43,7 @@ export const parseCustomer = (fields: Record<string, string>) => {
   if (rawLink && !isValidLink(rawLink)) httpError(400, "invalid_link", "Invalid link");
   const link = rawLink ? normalizeLink(rawLink) : null;
 
-  const status = (fields.status ?? "new") as Status;
+  const status = (fields.status ?? "active") as Status;
   if (!STATUSES.includes(status)) httpError(400, "invalid_status", "Invalid status");
 
   const amountDue = amount(fields.amountDue, "amount_due", true);

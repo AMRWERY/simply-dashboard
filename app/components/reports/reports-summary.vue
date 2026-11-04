@@ -1,10 +1,10 @@
 <template>
-  <section class="grid grid-cols-2 gap-4 lg:grid-cols-2">
+  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div
       v-for="(tile, i) in tiles"
       :key="tile.label"
       :style="{ '--d': `${i * 70}ms` }"
-      class="fade-up group min-w-0 break-inside-avoid last:col-span-2 lg:last:col-span-1 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm shadow-indigo-900/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-900/10 dark:border-gray-800 dark:bg-[#1e1f2b] dark:shadow-none"
+      class="fade-up group min-w-0 break-inside-avoid rounded-3xl border border-gray-100 bg-white p-5 shadow-sm shadow-indigo-900/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-900/10 dark:border-gray-800 dark:bg-[#1e1f2b] dark:shadow-none"
     >
       <div
         :class="[
