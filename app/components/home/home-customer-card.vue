@@ -60,7 +60,7 @@
         class="mt-4 space-y-2 border-t border-dashed border-gray-100 pt-4 dark:border-gray-800"
       >
         <p
-          v-if="customer.phone || facebookUrl(customer.link)"
+          v-if="customer.phone || messengerUrl(customer.link)"
           class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
         >
           <template v-if="customer.phone">
@@ -79,17 +79,18 @@
           </template>
           <span class="ms-auto flex items-center gap-2">
           <a
-            v-if="facebookUrl(customer.link)"
-            :href="facebookUrl(customer.link)"
+            v-if="messengerUrl(customer.link)"
+            :href="messengerUrl(customer.link)"
             target="_blank"
             rel="noopener noreferrer"
-            :aria-label="t('open_facebook')"
-            :title="t('open_facebook')"
-            class="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#1877F2] text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-90"
+            :aria-label="t('open_messenger')"
+            :title="t('open_messenger')"
+            class="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#0A7CFF] text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-90"
             @click.stop
           >
-            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.88v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/>
+<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.14 2 11.25c0 2.9 1.45 5.48 3.72 7.17V22l3.4-1.87c.93.26 1.9.4 2.88.4 5.52 0 10-4.14 10-9.28S17.52 2 12 2z"/>
+              <path fill="#0A7CFF" d="M5.5 14.6l4.4-5.8 3.1 2.9 4.5-2.9-4.4 5.8-3.1-2.9z"/>
             </svg>
           </a>
           <a
@@ -109,7 +110,7 @@
         </p>
         <!-- Non-Facebook links have no icon, so they stay as plain text -->
         <p
-          v-if="customer.link && !facebookUrl(customer.link)"
+          v-if="customer.link && !messengerUrl(customer.link)"
           class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
         >
           <span class="font-bold text-gray-700 dark:text-gray-300">
