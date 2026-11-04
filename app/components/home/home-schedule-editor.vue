@@ -8,17 +8,29 @@
     </p>
 
     <!-- Pick any number of dates -->
-    <VDatePicker :model-value="dates" multiple @update:model-value="selectDates" />
+    <VDatePicker
+      :model-value="dates"
+      multiple
+      @update:model-value="selectDates"
+    />
 
     <!-- One row per picked date, each with its own time -->
-    <TransitionGroup v-if="modelValue.length" name="row" tag="ul" class="mt-3 space-y-2">
+    <TransitionGroup
+      v-if="modelValue.length"
+      name="row"
+      tag="ul"
+      class="mt-3 space-y-2"
+    >
       <li
         v-for="row in modelValue"
         :key="row.key"
         class="rounded-2xl border border-gray-100 p-2 dark:border-gray-800"
       >
         <div class="mb-2 flex items-center justify-between gap-2 px-1">
-          <span dir="auto" class="truncate text-xs font-extrabold text-gray-800 dark:text-gray-100">
+          <span
+            dir="auto"
+            class="truncate text-xs font-extrabold text-gray-800 dark:text-gray-100"
+          >
             {{ dateLabel(row.date) }}
           </span>
           <div class="flex shrink-0 items-center gap-1.5">
@@ -27,7 +39,12 @@
               :aria-label="t('add_time_same_date')"
               :title="t('add_time_same_date')"
               class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 transition-all duration-200 hover:scale-110 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
-              @click="emit('update:modelValue', addTimeOnSameDate(modelValue, row.key))"
+              @click="
+                emit(
+                  'update:modelValue',
+                  addTimeOnSameDate(modelValue, row.key),
+                )
+              "
             >
               <LazyVIcon name="plus-icon" alt="" class="h-3.5 w-3.5" />
             </button>
@@ -48,26 +65,6 @@
           :label="t('schedule_time')"
           @update:model-value="patch(row.key, { time: $event })"
         />
-
-        <!-- Done toggle + live status -->
-        <div class="mt-2 flex items-center justify-between gap-2 px-1">
-          <label
-            class="flex cursor-pointer items-center gap-2 text-xs font-bold text-gray-600 select-none dark:text-gray-300"
-          >
-            <input
-              type="checkbox"
-              class="h-4 w-4 cursor-pointer rounded accent-emerald-600"
-              :checked="row.done"
-              @change="patch(row.key, { done: ($event.target as HTMLInputElement).checked })"
-            />
-            {{ t("mark_done") }}
-          </label>
-          <span
-            :class="['rounded-full px-2.5 py-0.5 text-[11px] font-bold', badge(row).class]"
-          >
-            {{ badge(row).label }}
-          </span>
-        </div>
       </li>
     </TransitionGroup>
   </div>
@@ -76,12 +73,12 @@
 <script lang="ts" setup>
 import type { ScheduleDraft } from "~/types/home";
 
+const { locale, t } = useI18n();
+
 const props = defineProps<{ modelValue: ScheduleDraft[] }>();
 const emit = defineEmits<{
   (e: "update:modelValue", value: ScheduleDraft[]): void;
 }>();
-
-const { locale, t } = useI18n();
 
 // The calendar's selection is derived from the rows, so they can't drift apart.
 const dates = computed(() => draftDates(props.modelValue));
@@ -98,7 +95,9 @@ const remove = (key: string) =>
 const patch = (key: string, change: Partial<ScheduleDraft>) =>
   emit(
     "update:modelValue",
-    props.modelValue.map((row) => (row.key === key ? { ...row, ...change } : row)),
+    props.modelValue.map((row) =>
+      row.key === key ? { ...row, ...change } : row,
+    ),
   );
 
 const dateLabel = (date: string) =>
@@ -118,7 +117,8 @@ const badge = (row: ScheduleDraft) => {
   return {
     done: {
       label: t("done"),
-      class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+      class:
+        "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
     },
     overdue: {
       label: t("overdue"),
@@ -126,7 +126,8 @@ const badge = (row: ScheduleDraft) => {
     },
     upcoming: {
       label: t("upcoming"),
-      class: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300",
+      class:
+        "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300",
     },
   }[status];
 };
@@ -139,10 +140,12 @@ const badge = (row: ScheduleDraft) => {
     opacity 0.2s ease,
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .row-enter-from {
   opacity: 0;
   transform: translateY(-8px);
 }
+
 .row-leave-to {
   opacity: 0;
   transform: translateY(8px);

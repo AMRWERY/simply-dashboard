@@ -255,7 +255,7 @@
           <div class="overflow-hidden">
             <ul class="space-y-1.5 px-3 pb-3" :inert="!expanded">
               <li
-                v-for="entry in customer.schedules"
+                v-for="entry in weekSchedules"
                 :key="entry.id"
                 class="flex items-center justify-between gap-2 rounded-xl bg-white/70 px-2.5 py-2 dark:bg-white/5"
               >
@@ -346,12 +346,16 @@ const whatsapp = computed(() => whatsappUrl(props.customer.phone));
 
 // Re-evaluated every 30s so an entry turns "overdue" without a refresh.
 const now = useNowEvery(30_000);
-const next = computed(() => nextOpenEntry(props.customer.schedules));
-const total = computed(() => props.customer.schedules.length);
-const doneCount = computed(() => total.value - openCount(props.customer.schedules));
+// The card only deals with this week's dates; the details dialog has the rest.
+const weekSchedules = computed(() =>
+  weekEntries(props.customer.schedules, locale.value, now.value),
+);
+const next = computed(() => nextOpenEntry(weekSchedules.value));
+const total = computed(() => weekSchedules.value.length);
+const doneCount = computed(() => total.value - openCount(weekSchedules.value));
 const overdueCount = computed(
   () =>
-    props.customer.schedules.filter((e) => scheduleStatus(e, now.value) === "overdue")
+    weekSchedules.value.filter((e) => scheduleStatus(e, now.value) === "overdue")
       .length,
 );
 // Whether the full list of dates is open (collapsed by default to keep cards compact).

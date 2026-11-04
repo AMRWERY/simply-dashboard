@@ -33,7 +33,27 @@ export const scheduleStatus = (
 export const nextOpenEntry = (schedules: ScheduleEntry[]) =>
   schedules.find((s) => !s.done) ?? null;
 
-export const openCount = (schedules: ScheduleEntry[]) =>
+/**
+ * Entries falling in the current calendar week (local time). The week starts on
+ * Saturday for Arabic and Sunday otherwise.
+ */
+export const weekEntries = (
+  schedules: ScheduleEntry[],
+  locale: string,
+  now = new Date(),
+) => {
+  const firstDay = locale === "ar" ? 6 : 0;
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  start.setDate(start.getDate() - ((start.getDay() - firstDay + 7) % 7));
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+  return schedules.filter((s) => {
+    const at = new Date(s.at).getTime();
+    return at >= start.getTime() && at < end.getTime();
+  });
+};
+
+export const openCount =(schedules: ScheduleEntry[]) =>
   schedules.filter((s) => !s.done).length;
 
 /** e.g. "Tue, Nov 5 · 3:30 PM" in the active language, Western digits. */

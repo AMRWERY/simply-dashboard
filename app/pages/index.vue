@@ -42,10 +42,6 @@
       :status-styles="statusStyles"
       @close="closeDetails"
       @edit="editFromDetails"
-      @schedule="
-        (scheduleId, done) =>
-          detailsCustomer && toggleSchedule(detailsCustomer.id, scheduleId, done)
-      "
     />
 
     <!-- Pagination: only when results exceed one page -->
