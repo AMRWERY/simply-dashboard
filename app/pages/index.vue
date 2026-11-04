@@ -144,7 +144,7 @@ const visibleCustomers = computed(() => {
       c.name.toLowerCase().includes(query) ||
       (c.link ?? "").toLowerCase().includes(query) ||
       (c.city ?? "").toLowerCase().includes(query) ||
-      c.phone.replace(/\s/g, "").includes(query.replace(/\s/g, ""))
+      (c.phone ?? "").replace(/\s/g, "").includes(query.replace(/\s/g, ""))
   );
 });
 

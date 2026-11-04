@@ -16,7 +16,7 @@ export type Database = {
           id: string;
           owner_id: string;
           name: string;
-          phone: string;
+          phone: string | null;
           link: string | null;
           city: string | null;
           image_url: string | null;
@@ -30,7 +30,7 @@ export type Database = {
           id?: string;
           owner_id?: string;
           name: string;
-          phone: string;
+          phone?: string | null;
           link?: string | null;
           city?: string | null;
           image_url?: string | null;
@@ -44,7 +44,7 @@ export type Database = {
           id?: string;
           owner_id?: string;
           name?: string;
-          phone?: string;
+          phone?: string | null;
           link?: string | null;
           city?: string | null;
           image_url?: string | null;

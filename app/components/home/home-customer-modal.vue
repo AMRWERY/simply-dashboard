@@ -294,7 +294,7 @@ const validateLink = (v: unknown): boolean | string => {
 // 11 digits, starting with 01 (spaces and dashes are allowed while typing).
 const validatePhone = (v: unknown): boolean | string => {
   const raw = String(v ?? "").trim();
-  if (!raw) return t("phone_required");
+  if (!raw) return true; // optional
   return isValidPhone(raw) ? true : t("phone_invalid");
 };
 
@@ -320,7 +320,7 @@ watch(
       form.value = {
         name: customer.name,
         link: customer.link ?? "",
-        phone: customer.phone,
+        phone: customer.phone ?? "",
         city: customer.city ?? "",
         status: customer.status,
         amountDue: String(customer.amountDue ?? 0),

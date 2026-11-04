@@ -51,6 +51,7 @@
                   {{ event.customer.name }}
                 </p>
                 <p
+                  v-if="event.customer.phone"
                   dir="ltr"
                   class="truncate text-start text-xs text-gray-500 dark:text-gray-400"
                 >

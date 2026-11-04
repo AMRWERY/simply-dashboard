@@ -60,8 +60,10 @@
         class="mt-4 space-y-2 border-t border-dashed border-gray-100 pt-4 dark:border-gray-800"
       >
         <p
+          v-if="customer.phone || facebookUrl(customer.link)"
           class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
         >
+          <template v-if="customer.phone">
           <LazyVIcon
             key="phone"
             name="phone-icon"
@@ -74,6 +76,7 @@
           <span dir="ltr" class="font-medium select-all">{{
             customer.phone
           }}</span>
+          </template>
           <span class="ms-auto flex items-center gap-2">
           <a
             v-if="facebookUrl(customer.link)"
@@ -342,7 +345,7 @@ const props = defineProps<{
 const money = (amount: number) => formatMoney(amount, locale.value);
 
 const remaining = computed(() => remainingAmount(props.customer));
-const whatsapp = computed(() => whatsappUrl(props.customer.phone));
+const whatsapp = computed(() => whatsappUrl(props.customer.phone ?? ""));
 
 // Re-evaluated every 30s so an entry turns "overdue" without a refresh.
 const now = useNowEvery(30_000);

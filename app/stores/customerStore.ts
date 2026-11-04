@@ -13,7 +13,7 @@ export const useCustomerStore = defineStore("customers", () => {
   const toFormData = (input: CustomerInput) => {
     const form = new FormData();
     form.append("name", input.name);
-    form.append("phone", input.phone);
+    form.append("phone", input.phone ?? "");
     form.append("link", input.link ?? "");
     form.append("city", input.city ?? "");
     form.append("status", input.status ?? "active");

@@ -183,7 +183,7 @@ const rows = computed(() => {
   const c = props.customer;
   if (!c) return [];
   return [
-    { label: t("phone"), value: c.phone, whatsapp: whatsappUrl(c.phone) },
+    { label: t("phone"), value: c.phone || "—", whatsapp: whatsappUrl(c.phone ?? "") },
     {
       label: t("link"),
       value: c.link || "—",
