@@ -197,5 +197,9 @@
   "by_customer": "حسب العميل",
   "correction": "تصحيح",
   "payments_note": "كل تغيير في المبلغ المدفوع لعميل يُسجَّل كدفعة في اليوم الذي تم فيه. وتظهر تخفيضات المبلغ كتصحيح.",
-  "view_month_details": "عرض مدفوعات {month}"
+  "view_month_details": "عرض مدفوعات {month}",
+  "ayah_title": "آية اليوم",
+  "play": "تشغيل",
+  "pause": "إيقاف مؤقت",
+  "ayah_seek": "التقدّم"
 }

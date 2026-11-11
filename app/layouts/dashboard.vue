@@ -27,6 +27,11 @@
 
         <slot />
       </main>
+
+      <!-- A random Ayah with its recitation, once each time the app is opened -->
+      <ClientOnly>
+        <lazy-home-ayah-dialog />
+      </ClientOnly>
     </div>
   </div>
 </template>

@@ -197,5 +197,9 @@
   "by_customer": "By customer",
   "correction": "Correction",
   "payments_note": "Each change to a customer's paid amount is recorded as a payment on the day it was made. Lowering an amount appears as a correction.",
-  "view_month_details": "View payments for {month}"
+  "view_month_details": "View payments for {month}",
+  "ayah_title": "Ayah of the moment",
+  "play": "Play",
+  "pause": "Pause",
+  "ayah_seek": "Seek"
 }
